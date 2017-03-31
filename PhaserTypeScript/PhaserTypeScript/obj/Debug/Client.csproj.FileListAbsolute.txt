@@ -4,9 +4,3 @@ C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\bin\Client.pdb
 C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
 C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
 C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
-C:\Users\vikto\OneDrive\Dokument\GitHub\Animal Hunter\Animal-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll.config
-C:\Users\vikto\OneDrive\Dokument\GitHub\Animal Hunter\Animal-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll
-C:\Users\vikto\OneDrive\Dokument\GitHub\Animal Hunter\Animal-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.pdb
-C:\Users\vikto\OneDrive\Dokument\GitHub\Animal Hunter\Animal-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
-C:\Users\vikto\OneDrive\Dokument\GitHub\Animal Hunter\Animal-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
-C:\Users\vikto\OneDrive\Dokument\GitHub\Animal Hunter\Animal-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb

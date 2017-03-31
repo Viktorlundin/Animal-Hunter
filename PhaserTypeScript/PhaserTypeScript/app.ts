@@ -18,7 +18,7 @@ var scoreText;
 
 function create() {
 
-    //  We're going to be using physics, so enable the Arcade Physics system
+    //  We're going to be using physics, so enable the Arcade Physics system.
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  A simple background for our game
@@ -136,4 +136,5 @@ function update()
     if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
         player.body.velocity.y = -350;
     }
+    //Trolololololololo
 }
