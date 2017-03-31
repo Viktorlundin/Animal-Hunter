@@ -1,0 +1,6 @@
+C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\bin\Client.dll.config
+C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\bin\Client.dll
+C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\bin\Client.pdb
+C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
+C:\Users\Evangelion\Desktop\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb

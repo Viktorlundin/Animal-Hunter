@@ -1,0 +1,12 @@
+c:\users\sroy\documents\visual studio 2015\Projects\PhaserTypeScript\PhaserTypeScript\bin\PhaserTypeScript.dll.config
+c:\users\sroy\documents\visual studio 2015\Projects\PhaserTypeScript\PhaserTypeScript\bin\PhaserTypeScript.dll
+c:\users\sroy\documents\visual studio 2015\Projects\PhaserTypeScript\PhaserTypeScript\bin\PhaserTypeScript.pdb
+c:\users\sroy\documents\visual studio 2015\Projects\PhaserTypeScript\PhaserTypeScript\obj\Debug\PhaserTypeScript.csprojResolveAssemblyReference.cache
+c:\users\sroy\documents\visual studio 2015\Projects\PhaserTypeScript\PhaserTypeScript\obj\Debug\PhaserTypeScript.dll
+c:\users\sroy\documents\visual studio 2015\Projects\PhaserTypeScript\PhaserTypeScript\obj\Debug\PhaserTypeScript.pdb
+E:\Arbeten\Programmering\Mina projekt\JavaScript & TypeScript\PhaserTypeScript\PhaserTypeScript\bin\PhaserTypeScript.dll.config
+E:\Arbeten\Programmering\Mina projekt\JavaScript & TypeScript\PhaserTypeScript\PhaserTypeScript\bin\PhaserTypeScript.dll
+E:\Arbeten\Programmering\Mina projekt\JavaScript & TypeScript\PhaserTypeScript\PhaserTypeScript\bin\PhaserTypeScript.pdb
+E:\Arbeten\Programmering\Mina projekt\JavaScript & TypeScript\PhaserTypeScript\PhaserTypeScript\obj\Debug\PhaserTypeScript.csprojResolveAssemblyReference.cache
+E:\Arbeten\Programmering\Mina projekt\JavaScript & TypeScript\PhaserTypeScript\PhaserTypeScript\obj\Debug\PhaserTypeScript.dll
+E:\Arbeten\Programmering\Mina projekt\JavaScript & TypeScript\PhaserTypeScript\PhaserTypeScript\obj\Debug\PhaserTypeScript.pdb
