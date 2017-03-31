@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "PhaserTypeScript\Client.csproj", "{0023B628-390C-4FB4-9654-F3E1DEC45508}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Server", "Nodejs\Server.njsproj", "{369BA6AB-B7A3-48CA-AB1F-EEDA70F2FB61}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0023B628-390C-4FB4-9654-F3E1DEC45508}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0023B628-390C-4FB4-9654-F3E1DEC45508}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0023B628-390C-4FB4-9654-F3E1DEC45508}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0023B628-390C-4FB4-9654-F3E1DEC45508}.Release|Any CPU.Build.0 = Release|Any CPU
+		{369BA6AB-B7A3-48CA-AB1F-EEDA70F2FB61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{369BA6AB-B7A3-48CA-AB1F-EEDA70F2FB61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{369BA6AB-B7A3-48CA-AB1F-EEDA70F2FB61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{369BA6AB-B7A3-48CA-AB1F-EEDA70F2FB61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
