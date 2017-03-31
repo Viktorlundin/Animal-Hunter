@@ -12,7 +12,7 @@ var stars;
 var score = 0;
 var scoreText;
 function create() {
-    //  We're going to be using physics, so enable the Arcade Physics system
+    //  We're going to be using physics, so enable the Arcade Physics system.
     game.physics.startSystem(Phaser.Physics.ARCADE);
     //  A simple background for our game
     game.add.sprite(0, 0, 'sky');
