@@ -1,13 +1,13 @@
-﻿var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+﻿var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update});
 
 function preload()
 {
-    game.load.image('sky', 'sky.png');
+    game.load.image('jungle', 'Jungle.png');
     game.load.image('ground', 'platform.png');
-    game.load.image('star', 'star.png');
+    game.load.image('supermario', 'SuperMario.png');
+    game.load.image('bullet', 'bullet.png');
     game.load.spritesheet('dude', 'dude.png', 32, 48);
 }
-
 
 var platforms;
 var player;
@@ -15,6 +15,8 @@ var cursors;
 var stars;
 var score = 0;
 var scoreText;
+var weapon;
+var firebutton;
 
 function create() {
 
@@ -22,7 +24,7 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     //  A simple background for our game
-    game.add.sprite(0, 0, 'sky');
+    game.add.sprite(0, 0, 'jungle');
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
@@ -40,28 +42,33 @@ function create() {
     ground.body.immovable = true;
 
     //  Now let's create two ledges
-    var ledge = platforms.create(400, 400, 'ground');
+    
 
-    ledge.body.immovable = true;
+    weapon = game.add.weapon(100, 'bullet');
 
-    ledge = platforms.create(-150, 250, 'ground');
-
-    ledge.body.immovable = true;
+    weapon.fireRate = 20;
+    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    weapon.fireAngle = 180;
+    weapon.bulletAngleOffset = 0;
+    weapon.bulletSpeed = 400;
 
 
     //j
 
     
     // The player and its settings
-    player = game.add.sprite(32, game.world.height - 150, 'dude');
+    player = game.add.sprite(32, game.world.height - 1000, 'dude');
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
-
+    weapon.trackSprite(player, 0, 14);
+    firebutton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     //  Player physics properties. Give the little guy a slight bounce.
-    player.body.bounce.y = 0.2;
-    player.body.gravity.y = 300;
+   
+    //player.body.friction = 1;
     player.body.collideWorldBounds = true;
+   
+    player.body.drag.y = 1000;
 
     //  Our two animations, walking left and right.
     player.animations.add('left', [0, 1, 2, 3], 10, true);
@@ -78,16 +85,16 @@ function create() {
     stars.enableBody = true;
 
     //  Here we'll create 12 of them evenly spaced apart
-    for (var i = 0; i < 12; i++)
+    for (var i = 0; i < 10; i++)
     {
         //  Create a star inside of the 'stars' group
-        var star = stars.create(i * 70, 0, 'star');
+        var star = stars.create(i * 1, Math.floor((Math.random() * 245) + 250), 'supermario');
 
         //  Let gravity do its thing
-        star.body.gravity.y = 6;
 
+        star.body.velocity.x = Math.floor((Math.random() * 10) +1);
         //  This just gives each star a slightly random bounce value
-        star.body.bounce.y = 0.7 + Math.random() * 0.2;
+        
     }
 
 
@@ -100,11 +107,12 @@ function update()
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(stars, platforms);
 
-    game.physics.arcade.overlap(player, stars, collectStar, null, this);
-    function collectStar(player, star)
+    game.physics.arcade.collide(weapon, stars, function (bullet, stars) { bullet.kill(); stars.kill(); });
+    game.physics.arcade.overlap(stars, weapon, collectStar, null, this);
+    function collectStar(weapon, supermario)
     {
         // Removes the star from the screen
-        star.kill();
+        supermario.kill();
 
         //  Add and update the score
         score += 10;
@@ -125,6 +133,17 @@ function update()
 
         player.animations.play('right');
     }
+    else if (cursors.down.isDown)
+    {
+        player.body.velocity.y = 150
+    }
+    else if (cursors.up.isDown) {
+        player.body.velocity.y = -150
+    }
+    else if (firebutton.isDown)
+    {
+        weapon.fire();
+    }
     else {
         //  Stand still
         player.animations.stop();
@@ -133,8 +152,6 @@ function update()
     }
 
     //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && player.body.touching.down && hitPlatform) {
-        player.body.velocity.y = -350;
-    }
+   
     //Trolololololololo
 }
