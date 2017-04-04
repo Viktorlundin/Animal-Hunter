@@ -1,35 +1,48 @@
 ﻿//importera och skapa moduler
 //http & express, webserver
-var express: any = require('express');
-var app: any = express();
-var server: any = require('http').createServer(app);
+//var express: any = require('express');
+//var app: any = express();
+//var server: any = require('http').createServer(app);
 //socket.io
-var io: any = require('socket.io')(server);
+//var io: any = require('socket.io')(server);
 
 //path för att hitta filväg utan säkerhetsproblem för servern(för att hitta index.html i annan map)
-var path = require('path');
+//var path = require('path');
 
 
 //Allt i denna mappen localhost:port/includes är public för den som besöker hemsidan,
 //där kan vi lägga jquery libary etc.
-app.use(express.static(__dirname + '/../PhaserTypeScript/'));
+//app.use(express.static(__dirname + '/../PhaserTypeScript/'));
 
-//Skickar hemsidan index.html när någon besöker hemsidan.
-app.get('/', function (req, res, next)
-{
-    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
-});
+////Skickar hemsidan index.html när någon besöker hemsidan.
+//app.get('/', function (req, res, next)
+//{
+//    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
+//});
 
-server.listen(1337); //Lysnar på trafik på port 1337
+ //Lysnar på trafik på port 1337
 
 //socket.io server
 
 class SocketServer
 {
-    
+    express: any = require('express');
+    app: any = this.express();
+    server: any = require('http').createServer(this.app);
+    io: any = require('socket.io')(this.server);
+    path = require('path');
+
 
     constructor() { }
 
+    StartWebserver(): any {
+        this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
+        this.app.get('/', function (req, res, next) {
+            res.sendFile(this.path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
+        });
+        this.server.listen(1337);
+        console.log("Server started");
+    }
 
         /*CLIENT SIDAN:
         function movePlayer () {
@@ -41,14 +54,14 @@ class SocketServer
         });
 */
     setEventHandlers(): any {
-        io.on("connection", function (client)
-        {
+        this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
+            client.broadcast.emit('newPlayer', client.id);
 
-            client.on('player moved', function (msg)
-            {
-                client.emit('update player', msg);
-            }
+            client.on('playerMoved', function (data) {
+                client.broadcast.emit('updateCoordinates', { coordinates: data, player: client.id });
+            });
+
 
             //client.on("move player", onMovePlayer);
             //client.on("disconnect", onClientDisconnect);
@@ -63,26 +76,16 @@ class SocketServer
             //client.on("select stage", Lobby.onStageSelect);
             //client.on("enter pending game", Lobby.onEnterPendingGame);
             //client.on("leave pending game", Lobby.onLeavePendingGame);
-        }
+        });
     }
 
-
-
-
-    broadcastingLoop()
-    {
-        //for (var client in io.so)
-        //{
-        //    io.socket.broadcast.emit('coordinates', { x: /*x coordinate of ball*/, y: /*y coordinate of ball*/} );
-        //}
-    }
 }
 
 
 let SS = new SocketServer();
-
 SS.setEventHandlers();
-SS.broadcastingLoop();
+SS.StartWebserver();
+
 
 
 //// sending to sender-client only

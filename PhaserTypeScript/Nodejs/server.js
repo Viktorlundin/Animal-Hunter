@@ -1,24 +1,38 @@
 //importera och skapa moduler
 //http & express, webserver
-var express = require('express');
-var app = express();
-var server = require('http').createServer(app);
+//var express: any = require('express');
+//var app: any = express();
+//var server: any = require('http').createServer(app);
 //socket.io
-var io = require('socket.io')(server);
+//var io: any = require('socket.io')(server);
 //path för att hitta filväg utan säkerhetsproblem för servern(för att hitta index.html i annan map)
-var path = require('path');
+//var path = require('path');
 //Allt i denna mappen localhost:port/includes är public för den som besöker hemsidan,
 //där kan vi lägga jquery libary etc.
-app.use(express.static(__dirname + '/../PhaserTypeScript/'));
-//Skickar hemsidan index.html när någon besöker hemsidan.
-app.get('/', function (req, res, next) {
-    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
-});
-server.listen(1337); //Lysnar på trafik på port 1337
+//app.use(express.static(__dirname + '/../PhaserTypeScript/'));
+////Skickar hemsidan index.html när någon besöker hemsidan.
+//app.get('/', function (req, res, next)
+//{
+//    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
+//});
+//Lysnar på trafik på port 1337
 //socket.io server
 var SocketServer = (function () {
     function SocketServer() {
+        this.express = require('express');
+        this.app = this.express();
+        this.server = require('http').createServer(this.app);
+        this.io = require('socket.io')(this.server);
+        this.path = require('path');
     }
+    SocketServer.prototype.StartWebserver = function () {
+        this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
+        this.app.get('/', function (req, res, next) {
+            res.sendFile(this.path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
+        });
+        this.server.listen(1337);
+        console.log("Server started");
+    };
     /*CLIENT SIDAN:
     function movePlayer () {
     socket.emit ('player move', {map: 4, coords: '0.0'});
@@ -29,10 +43,11 @@ var SocketServer = (function () {
     });
 */
     SocketServer.prototype.setEventHandlers = function () {
-        io.on("connection", function (client) {
+        this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
-            client.on('player moved', function (msg) {
-                client.emit('update player', msg);
+            client.broadcast.emit('newPlayer', client.id);
+            client.on('playerMoved', function (data) {
+                client.broadcast.emit('updateCoordinates', { coordinates: data, player: client.id });
             });
             //client.on("move player", onMovePlayer);
             //client.on("disconnect", onClientDisconnect);
@@ -48,17 +63,11 @@ var SocketServer = (function () {
             //client.on("leave pending game", Lobby.onLeavePendingGame);
         });
     };
-    SocketServer.prototype.broadcastingLoop = function () {
-        //for (var client in io.so)
-        //{
-        //    io.socket.broadcast.emit('coordinates', { x: /*x coordinate of ball*/, y: /*y coordinate of ball*/} );
-        //}
-    };
     return SocketServer;
 })();
 var SS = new SocketServer();
 SS.setEventHandlers();
-SS.broadcastingLoop();
+SS.StartWebserver();
 //// sending to sender-client only
 //socket.emit('message', "this is a test");
 //// sending to all clients, include sender
