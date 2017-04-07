@@ -24,14 +24,13 @@ function create() {
     //  We will enable physics for any object that is created in this group
     platforms.enableBody = true;
     //  Now let's create two ledges
+    // The player and its settings
     weapon = game.add.weapon(100, 'bullet');
     weapon.fireRate = 20;
     weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
     weapon.fireAngle = 180;
     weapon.bulletAngleOffset = 0;
     weapon.bulletSpeed = 400;
-    //j
-    // The player and its settings
     player = game.add.sprite(1000, game.world.height + 100, 'dude');
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);

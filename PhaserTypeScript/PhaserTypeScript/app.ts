@@ -34,7 +34,7 @@ function create() {
 
     //  Now let's create two ledges
     
-
+    // The player and its settings
     weapon = game.add.weapon(100, 'bullet');
 
     weapon.fireRate = 20;
@@ -42,12 +42,6 @@ function create() {
     weapon.fireAngle = 180;
     weapon.bulletAngleOffset = 0;
     weapon.bulletSpeed = 400;
-
-
-    //j
-
-    
-    // The player and its settings
     player = game.add.sprite(1000, game.world.height + 100, 'dude');
 
     //  We need to enable physics on the player
