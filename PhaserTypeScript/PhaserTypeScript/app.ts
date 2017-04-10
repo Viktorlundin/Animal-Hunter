@@ -1,13 +1,8 @@
-﻿
-class Global {
-    static socket: any = null;
-}
-
+﻿///Player.ts
 var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload()
 {
-    console.log(`socket ${Global.socket !== null}`);
     game.load.image('jungle', 'Jungle.png');
     game.load.image('ground', 'platform.png');
     game.load.image('baddie', 'baddie.png');
@@ -23,48 +18,31 @@ var score = 0;
 var scoreText;
 var weapon;
 var firebutton;
+import Player = require("./Player");
 
 function create() {
-
-    //  We're going to be using physics, so enable the Arcade Physics system.
     game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    //  A simple background for our game
     game.add.sprite(0, 0, 'jungle');
-
-    //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
-
-    //  We will enable physics for any object that is created in this group
     platforms.enableBody = true;
-
-    //  Now let's create two ledges
     
-    // The player and its settings
-    weapon = game.add.weapon(100, 'bullet');
 
+    weapon = game.add.weapon(100, 'bullet');
     weapon.fireRate = 20;
     weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
     weapon.fireAngle = 180;
     weapon.bulletAngleOffset = 0;
     weapon.bulletSpeed = 400;
-    player = game.add.sprite(1000, game.world.height + 100, 'dude');
 
-    //  We need to enable physics on the player
+
+    player = game.add.sprite(1000, game.world.height + 100, 'dude');
     game.physics.arcade.enable(player);
     weapon.trackSprite(player, 0, 14);
     firebutton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    //  Player physics properties. Give the little guy a slight bounce.
-   
-    
     player.body.collideWorldBounds = true;
-   
     player.body.drag.y = 1000;
-
-    //  Our two animations, walking left and right.
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
-
     cursors = game.input.keyboard.createCursorKeys();
 
 
@@ -94,15 +72,15 @@ function update()
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(mobs, platforms);
 
-   
-    game.physics.arcade.overlap(mobs, weapon.bullets, hitenemy, null, this);
+    game.physics.arcade.collide(weapon, mobs, function (bullet, mobs) { bullet.kill(); mobs.kill(); });
+    game.physics.arcade.overlap(mobs, weapon, collectStar, null, this);
 
     
     if (firebutton.isDown) {
         weapon.fire();
     }
 
-    function hitenemy(weapon, mobs)
+    function collectStar(weapon, mobs)
     {
         // Removes the star from the screen
         mobs.kill();
