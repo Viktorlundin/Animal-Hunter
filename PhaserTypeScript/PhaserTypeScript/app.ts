@@ -53,6 +53,7 @@ function create() {
 
     mobs = game.add.group();
     mobs.enableBody = true;
+    mobs.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 5; i++)
     {
 
