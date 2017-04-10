@@ -4,9 +4,9 @@ var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, creat
 var Global = (function () {
     function Global() {
     }
+    Global.socket = null;
     return Global;
 }());
-Global.socket = null;
 function preload() {
     game.load.image('jungle', 'Jungle.png');
     game.load.image('ground', 'platform.png');

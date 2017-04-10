@@ -19,5 +19,5 @@ var Player = (function () {
     };
     return Player;
 }());
-module.exports = Player;
-//# sourceMappingURL=Player.js.map
+exports.Player = Player;
+//# sourceMappingURL=player.js.map
