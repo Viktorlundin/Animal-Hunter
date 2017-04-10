@@ -1,6 +1,11 @@
 ﻿///Player.ts
 var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+class Global
+{
+    static socket: any = null;
+}
+
 function preload()
 {
     game.load.image('jungle', 'Jungle.png');
