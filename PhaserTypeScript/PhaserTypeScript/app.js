@@ -1,3 +1,5 @@
+"use strict";
+///Player.ts
 var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 function preload() {
     game.load.image('jungle', 'Jungle.png');
@@ -15,32 +17,22 @@ var scoreText;
 var weapon;
 var firebutton;
 function create() {
-    //  We're going to be using physics, so enable the Arcade Physics system.
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    //  A simple background for our game
     game.add.sprite(0, 0, 'jungle');
-    //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
-    //  We will enable physics for any object that is created in this group
     platforms.enableBody = true;
-    //  Now let's create two ledges
     weapon = game.add.weapon(100, 'bullet');
     weapon.fireRate = 20;
     weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
     weapon.fireAngle = 180;
     weapon.bulletAngleOffset = 0;
     weapon.bulletSpeed = 400;
-    //j
-    // The player and its settings
     player = game.add.sprite(1000, game.world.height + 100, 'dude');
-    //  We need to enable physics on the player
     game.physics.arcade.enable(player);
     weapon.trackSprite(player, 0, 14);
     firebutton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    //  Player physics properties. Give the little guy a slight bounce.
     player.body.collideWorldBounds = true;
     player.body.drag.y = 1000;
-    //  Our two animations, walking left and right.
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
     cursors = game.input.keyboard.createCursorKeys();

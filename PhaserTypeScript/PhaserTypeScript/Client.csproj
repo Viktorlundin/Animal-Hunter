@@ -33,6 +33,7 @@
     <TypeScriptCompile Include="p2.d.ts" />
     <TypeScriptCompile Include="phaser.d.ts" />
     <TypeScriptCompile Include="pixi.d.ts" />
+    <TypeScriptCompile Include="player.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
