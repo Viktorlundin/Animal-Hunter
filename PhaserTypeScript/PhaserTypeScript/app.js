@@ -1,6 +1,12 @@
 "use strict";
 ///Player.ts
 var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var Global = (function () {
+    function Global() {
+    }
+    return Global;
+}());
+Global.socket = null;
 function preload() {
     game.load.image('jungle', 'Jungle.png');
     game.load.image('ground', 'platform.png');
@@ -38,6 +44,7 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     mobs = game.add.group();
     mobs.enableBody = true;
+    mobs.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 5; i++) {
         var mob = mobs.create(i * 5, Math.floor((Math.random() * 300) + 600), 'baddie');
         mob.body.velocity.x = Math.floor((Math.random() * 10) + 1);
