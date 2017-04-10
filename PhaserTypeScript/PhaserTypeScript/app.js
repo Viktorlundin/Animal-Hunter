@@ -52,6 +52,7 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     mobs = game.add.group();
     mobs.enableBody = true;
+    mobs.physicsBodyType = Phaser.Physics.ARCADE;
     for (var i = 0; i < 5; i++) {
         var mob = mobs.create(i * 5, Math.floor((Math.random() * 300) + 600), 'baddie');
         mob.body.velocity.x = Math.floor((Math.random() * 10) + 1);
