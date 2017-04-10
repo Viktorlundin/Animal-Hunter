@@ -1,4 +1,5 @@
 "use strict";
+/// <reference path="p2.d.ts" />
 ///Player.ts
 var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var Global = (function () {
@@ -27,6 +28,7 @@ function create() {
     game.add.sprite(0, 0, 'jungle');
     platforms = game.add.group();
     platforms.enableBody = true;
+    setEventHandlers();
     weapon = game.add.weapon(100, 'bullet');
     weapon.fireRate = 20;
     weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
@@ -53,6 +55,41 @@ function create() {
     //mobs.callAll('play', null, 'walk');
     scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 }
+function setEventHandlers() {
+    Global.socket.on('yourID', function (data) {
+        //vår player.id = data;
+    });
+    Global.socket.on('newPlayer', function (data) {
+        var playerID = data;
+        //new player(data); data är playerns ID
+        //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
+    });
+    Global.socket.on('updateCoordinates', function (data) {
+        var id, x, y;
+        id = data.player;
+        x = data.x;
+        y = data.y;
+        //coordinates: data, player: client.id
+        //Set coordinates where player.id = player
+    });
+    //client.on("move player", onMovePlayer);
+    //client.on("disconnect", onClientDisconnect);
+    //client.on("place bomb", onPlaceBomb);
+    //client.on("register map", onRegisterMap);
+    //client.on("start game on server", onStartGame);
+    //client.on("ready for round", onReadyForRound);
+    //client.on("powerup overlap", onPowerupOverlap);
+    //client.on("enter lobby", Lobby.onEnterLobby);
+    //client.on("host game", Lobby.onHostGame);
+    //client.on("select stage", Lobby.onStageSelect);
+    //client.on("enter pending game", Lobby.onEnterPendingGame);
+    //client.on("leave pending game", Lobby.onLeavePendingGame);
+}
+function BroadCastCoordinates() {
+    var x = player.body.position.x;
+    var y = player.body.position.y;
+    Global.socket.emit('playerMoved', { x: x, y: y, player: null }); //PLAYER ID MÅSTE SÄTTAS HÄR
+}
 function update() {
     //  Collide the player and the stars with the platforms
     var hitPlatform = game.physics.arcade.collide(player, platforms);
@@ -75,6 +112,7 @@ function update() {
         //  Move to the left
         player.body.velocity.x = -150;
         player.animations.play('left');
+        BroadCastCoordinates();
     }
     else if (cursors.right.isDown) {
         //  Move to the right
@@ -84,10 +122,12 @@ function update() {
     else if (cursors.down.isDown) {
         player.body.velocity.y = 150;
         player.animations.play('left');
+        BroadCastCoordinates();
     }
     else if (cursors.up.isDown) {
         player.body.velocity.y = -150;
         player.animations.play('left');
+        BroadCastCoordinates();
     }
     else {
         //  Stand still

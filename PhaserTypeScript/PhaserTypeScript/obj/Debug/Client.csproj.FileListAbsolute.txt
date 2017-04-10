@@ -21,3 +21,9 @@ C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\b
 C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
 C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
 C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
+C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll.config
+C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll
+C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.pdb
+C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
+C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
