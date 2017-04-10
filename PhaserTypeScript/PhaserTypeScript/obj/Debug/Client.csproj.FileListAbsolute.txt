@@ -21,3 +21,6 @@ C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\b
 C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
 C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
 C:\Users\jonathan\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
+C:\Users\jonathan\Desktop\jungle-hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\jonathan\Desktop\jungle-hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
+C:\Users\jonathan\Desktop\jungle-hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
