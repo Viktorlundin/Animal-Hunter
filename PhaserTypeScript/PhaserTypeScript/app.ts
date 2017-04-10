@@ -1,7 +1,13 @@
-﻿var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update});
+﻿
+class Global {
+    static socket: any = null;
+}
+
+var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload()
 {
+    console.log(`socket ${Global.socket !== null}`);
     game.load.image('jungle', 'Jungle.png');
     game.load.image('ground', 'platform.png');
     game.load.image('baddie', 'baddie.png');
@@ -87,15 +93,15 @@ function update()
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(mobs, platforms);
 
-    game.physics.arcade.collide(weapon, mobs, function (bullet, mobs) { bullet.kill(); mobs.kill(); });
-    game.physics.arcade.overlap(mobs, weapon, collectStar, null, this);
+   
+    game.physics.arcade.overlap(mobs, weapon.bullets, hitenemy, null, this);
 
     
     if (firebutton.isDown) {
         weapon.fire();
     }
 
-    function collectStar(weapon, mobs)
+    function hitenemy(weapon, mobs)
     {
         // Removes the star from the screen
         mobs.kill();
