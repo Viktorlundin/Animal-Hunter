@@ -64,7 +64,7 @@ var SocketServer = (function () {
         });
     };
     return SocketServer;
-})();
+}());
 var SS = new SocketServer();
 SS.setEventHandlers();
 SS.StartWebserver();

@@ -5,8 +5,13 @@
     <meta charset="utf-8" />
     <title>TypeScript HTML App</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
+    <script src="./socket.io.js"></script>
     <script src="phaser.js"></script>
     <script src="app.js"></script>
+    <script>
+        var socket = io.connect();
+        Global.socket = socket;
+    </script>
 </head>
 <body>
     <h1>Jungle Hunter Game</h1>

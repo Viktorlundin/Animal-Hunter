@@ -1,7 +1,13 @@
-﻿var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update});
+﻿
+class Global {
+    static socket: any = null;
+}
+
+var game = new Phaser.Game(1010, 790, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
 function preload()
 {
+    console.log(`socket ${Global.socket !== null}`);
     game.load.image('jungle', 'Jungle.png');
     game.load.image('ground', 'platform.png');
     game.load.image('baddie', 'baddie.png');
@@ -34,7 +40,7 @@ function create() {
 
     //  Now let's create two ledges
     
-
+    // The player and its settings
     weapon = game.add.weapon(100, 'bullet');
 
     weapon.fireRate = 20;
@@ -42,12 +48,6 @@ function create() {
     weapon.fireAngle = 180;
     weapon.bulletAngleOffset = 0;
     weapon.bulletSpeed = 400;
-
-
-    //j
-
-    
-    // The player and its settings
     player = game.add.sprite(1000, game.world.height + 100, 'dude');
 
     //  We need to enable physics on the player
@@ -93,15 +93,15 @@ function update()
     var hitPlatform = game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(mobs, platforms);
 
-    game.physics.arcade.collide(weapon, mobs, function (bullet, mobs) { bullet.kill(); mobs.kill(); });
-    game.physics.arcade.overlap(mobs, weapon, collectStar, null, this);
+   
+    game.physics.arcade.overlap(mobs, weapon.bullets, hitenemy, null, this);
 
     
     if (firebutton.isDown) {
         weapon.fire();
     }
 
-    function collectStar(weapon, mobs)
+    function hitenemy(weapon, mobs)
     {
         // Removes the star from the screen
         mobs.kill();
