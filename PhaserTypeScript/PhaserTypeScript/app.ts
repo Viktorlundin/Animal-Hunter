@@ -1,7 +1,7 @@
 ﻿/// <reference path='Game'/>
 import * as game from "./Game.ts";
 
-class Global
+export class Global
 {
     static socket: any = null;
 }

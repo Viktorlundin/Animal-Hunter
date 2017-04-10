@@ -45,9 +45,16 @@ var SocketServer = (function () {
     SocketServer.prototype.setEventHandlers = function () {
         this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
+            client.emit('yourID', client.id);
+            console.log("Player ID sent");
             client.broadcast.emit('newPlayer', client.id);
             client.on('playerMoved', function (data) {
-                client.broadcast.emit('updateCoordinates', { coordinates: data, player: client.id });
+                console.log(client.id + "x:" + data.x + " y:" + data.y);
+                client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: client.id });
+            });
+            client.on('disconnect', function () {
+                console.log('user disconnect');
+                client.emit('user disconnected' + client.id);
             });
             //client.on("move player", onMovePlayer);
             //client.on("disconnect", onClientDisconnect);

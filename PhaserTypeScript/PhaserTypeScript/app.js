@@ -5,6 +5,7 @@ var Global = (function () {
     Global.socket = null;
     return Global;
 }());
+exports.Global = Global;
 window.onload = function () { var game = new game.GameForFour; };
 //function preload()
 //{

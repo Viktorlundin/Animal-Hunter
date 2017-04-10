@@ -1,6 +1,7 @@
 "use strict";
 /// <reference path="./player.ts"/>
 var player = require("./player.ts");
+var Global = require("./app.ts");
 var GameForFour = (function () {
     function GameForFour() {
         this.player = new player.Player("1");
@@ -15,6 +16,7 @@ var GameForFour = (function () {
         this.game.load.spritesheet('dude', 'dude.png', 32, 48);
     };
     GameForFour.prototype.create = function () {
+        setEventHandlers();
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.add.sprite(0, 0, 'jungle');
         this.platforms = this.game.add.group();
@@ -87,6 +89,53 @@ var GameForFour = (function () {
             this.player.animations.stop();
             this.player.frame = 0;
         }
+    };
+    GameForFour.prototype.setEventHandlers = function () {
+        Global.socket.on('yourID', function (data) {
+            //vår player.id = data;
+        });
+        Global.socket.on('newPlayer', function (data) {
+            var playerID = data;
+            //new player(data); data är playerns ID
+            //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
+        });
+        Global.socket.on('updateCoordinates', function (data) {
+            var id, x, y;
+            id = data.player;
+            x = data.x;
+            y = data.y;
+            //coordinates: data, player: client.id
+            //Set coordinates where player.id = player
+        });
+        function BroadCastCoordinates() {
+            var x = player.body.position.x;
+            var y = player.body.position.y;
+            Global.socket.emit('playerMoved', { x: x, y: y, player: null }); //PLAYER ID MÅSTE SÄTTAS HÄR
+        }
+        BroadCastCoordinates();
+        //public players: any = new Array(4);
+        //public constructor() {
+        //    for (var i = 0; i < this.players.length; i++){
+        //        this.players[i] = null;
+        //    }
+        //}
+        //public search_id(id: string) {
+        //    for (var i = 0; i < this.players.length; i++) {
+        //        if (this.players[i] != null) {
+        //            if (this.players[i].check_id(id))
+        //                return i;
+        //        }
+        //    }
+        //    return -1;
+        //}
+        //public search_empty() {
+        //    for (var i = 0; i < this.players.length; i++) {
+        //        if (this.players[i] != null) {
+        //            return i;
+        //        }
+        //    }
+        //    return -1;
+        //}
     };
     return GameForFour;
 }());
