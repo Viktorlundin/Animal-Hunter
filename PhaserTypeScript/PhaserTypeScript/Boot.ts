@@ -1,5 +1,8 @@
 ﻿module JungleHunter {
     export class Boot extends Phaser.State {
+ 
+
+
         setEventHandlers() {
             Global.socket.on('yourID', function (data) {
                 //vår player.id = data;
@@ -21,9 +24,11 @@
             });
         }
         create() {
-            this.setEventHandlers();
-            this.physics.startSystem(Phaser.Physics.ARCADE);
+            console.log("works");
+            //this.setEventHandlers();
             this.game.state.start('Preloader', true, false);
+            
+
         }
     }
 }
