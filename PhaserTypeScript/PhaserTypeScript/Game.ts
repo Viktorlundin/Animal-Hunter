@@ -1,8 +1,10 @@
-﻿module JungleHunter {
-    //import * as Player from "./player";
+﻿
 
+module JungleHunter {
+    //import * as Player from "./player";
     export class Global {
-        static socket: any = null;
+        static socket: any;
+        socket = null;
     }
 
     export class Game extends Phaser.Game {

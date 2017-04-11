@@ -115,24 +115,6 @@ var JungleHunter;
         function Boot() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        Boot.prototype.setEventHandlers = function () {
-            JungleHunter.Global.socket.on('yourID', function (data) {
-                //vår player.id = data;
-            });
-            JungleHunter.Global.socket.on('newPlayer', function (data) {
-                var playerID = data;
-                //new player(data); data är playerns ID
-                //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
-            });
-            JungleHunter.Global.socket.on('updateCoordinates', function (data) {
-                var id, x, y;
-                id = data.player;
-                x = data.x;
-                y = data.y;
-                //coordinates: data, player: client.id
-                //Set coordinates where player.id = player
-            });
-        };
         Boot.prototype.create = function () {
             console.log("works");
             //this.setEventHandlers();
@@ -147,10 +129,10 @@ var JungleHunter;
     //import * as Player from "./player";
     var Global = (function () {
         function Global() {
+            this.socket = null;
         }
         return Global;
     }());
-    Global.socket = null;
     JungleHunter.Global = Global;
     var Game = (function (_super) {
         __extends(Game, _super);
@@ -189,49 +171,69 @@ var JungleHunter;
 (function (JungleHunter) {
     var Player = (function (_super) {
         __extends(Player, _super);
-        //public id: string;
-        //public x: number;
-        //public y: number;
-        //public cursors: any;
         function Player(game, x, y) {
             var _this = _super.call(this, game, x, y, 'dude', 0) || this;
+            //public id: string;
+            //public x: number;
+            //public y: number;
+            //public cursors: any;
+            _this.cursors = _this.game.input.keyboard.createCursorKeys();
             //this.id = id;
             //this.x = 0;
             //this.y = 0;
-            _this.game.physics.startSystem(Phaser.Physics.ARCADE);
+            //this.game.physics.startSystem(Phaser.Physics.ARCADE);
             _this.animations.add('left', [0, 1, 2, 3], 10, true);
             _this.animations.add('right', [5, 6, 7, 8], 10, true);
             _this.game.physics.arcade.enable(_this);
             _this.body.collideWorldBounds = true;
             _this.body.drag.y = 1000;
             //this.game.physics.arcade.enableBody(this);
+            _this.game.physics.arcade.enable(_this);
             _this.game.add.existing(_this);
             return _this;
         }
+        Player.prototype.setEventHandlers = function () {
+            JungleHunter.Global.socket.on('yourID', function (data) {
+                //vår player.id = data;
+            });
+            JungleHunter.Global.socket.on('newPlayer', function (data) {
+                var playerID = data;
+                //new player(data); data är playerns ID
+                //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
+            });
+            JungleHunter.Global.socket.on('updateCoordinates', function (data) {
+                var id, x, y;
+                id = data.player;
+                x = data.x;
+                y = data.y;
+                //coordinates: data, player: client.id
+                //Set coordinates where player.id = player
+            });
+        };
         Player.prototype.BroadCastCoordinates = function () {
             var x = this.body.position.x;
             var y = this.body.position.y;
-            JungleHunter.Global.socket.emit('playerMoved', { x: x, y: y, player: null }); //PLAYER ID MÅSTE SÄTTAS HÄR
+            JungleHunter.Global.socket.emit('playerMoved', { x: x, y: y, player: "lol" }); //PLAYER ID MÅSTE SÄTTAS HÄR
         };
         Player.prototype.update = function () {
             this.body.velocity.x = 0;
             //if this player.id = my id (
-            if (this.game.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
+            if (this.cursors.left.isDown) {
                 this.body.velocity.x = -150;
                 this.animations.play('left');
                 this.BroadCastCoordinates();
             }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
+            else if (this.cursors.right.isDown) {
                 this.body.velocity.x = 150;
                 this.animations.play('left');
                 this.BroadCastCoordinates();
             }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.DOWN)) {
+            else if (this.cursors.down.isDown) {
                 this.body.velocity.y = 150;
                 this.animations.play('left');
                 this.BroadCastCoordinates();
             }
-            else if (this.game.input.keyboard.isDown(Phaser.Keyboard.UP)) {
+            else if (this.cursors.up.isDown) {
                 this.body.velocity.y = -150;
                 this.animations.play('left');
                 this.BroadCastCoordinates();
@@ -282,7 +284,7 @@ var JungleHunter;
             this.background = this.add.sprite(0, 0, 'jungle');
             this.platforms = this.add.group();
             this.platforms.enableBody = true;
-            this.player = new JungleHunter.Player(this.game, 130, 200, "1");
+            this.player = new JungleHunter.Player(this.game, 130, 200);
             console.log("i run game");
         };
         return RunGame;
