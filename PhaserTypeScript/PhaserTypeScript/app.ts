@@ -6,6 +6,37 @@ class Global
     static socket: any = null;
 }
 
+function setEventHandlers() {
+
+    Global.socket.on('yourID', function (data) {
+        //vår player.id = data;
+
+    });
+
+    Global.socket.on('newPlayer', function (data) {
+        var playerID = data;
+        //new player(data); data är playerns ID
+        //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
+    });
+
+    Global.socket.on('updateCoordinates', function (data) {
+        var id, x, y;
+        id = data.player;
+        x = data.x;
+        y = data.y;
+        //coordinates: data, player: client.id
+        //Set coordinates where player.id = player
+
+    });
+}
+
+function BroadCastCoordinates() {
+    var x = player.body.position.x;
+    var y = player.body.position.y;
+
+    Global.socket.emit('playerMoved', { x: x, y: y, player: null });//PLAYER ID MÅSTE SÄTTAS HÄR
+}
+
 function preload()
 {
     game.load.image('jungle', 'Jungle.png');
@@ -26,6 +57,7 @@ var firebutton;
 import Player = require("./Player");
 
 function create() {
+    setEventHandlers();
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0, 0, 'jungle');
     platforms = game.add.group();
@@ -100,22 +132,24 @@ function update()
     if (cursors.left.isDown) {
         //  Move to the left
         player.body.velocity.x = -150;
-
+        BroadCastCoordinates();
         player.animations.play('left');
     }
     else if (cursors.right.isDown) {
         //  Move to the right
         player.body.velocity.x = 150;
-
+        BroadCastCoordinates();
         player.animations.play('left');
     }
     else if (cursors.down.isDown)
     {
         player.body.velocity.y = 150;
+        BroadCastCoordinates();
         player.animations.play('left');
     }
     else if (cursors.up.isDown) {
         player.body.velocity.y = -150;
+        BroadCastCoordinates();
         player.animations.play('left');
     }
     else {
