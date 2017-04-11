@@ -131,7 +131,7 @@ var JungleHunter;
             this.game.physics.arcade.enable(this);
             this.body.collideWorldBounds = true;
             this.body.drag.y = 1000;
-            this.game.physics.arcade.enableBody(this);
+            //this.game.physics.arcade.enableBody(this);
             this.game.add.existing(this);
         }
         Player.prototype.check_id = function (id) {
