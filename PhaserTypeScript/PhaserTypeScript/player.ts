@@ -1,15 +1,15 @@
 ﻿module JungleHunter {
     export class Player extends Phaser.Sprite {
 
-        //public id: string;
+        public id: string;
         //public x: number;
         //public y: number;
         //public cursors: any;
         cursors = this.game.input.keyboard.createCursorKeys();
 
-        constructor(game: Phaser.Game, x: number, y: number) {//, id: string
+        constructor(game: Phaser.Game, x: number, y: number, id: string) {//, id: string
             super(game, x, y, 'dude', 0);
-            //this.id = id;
+            this.id = id;
             //this.x = 0;
             //this.y = 0;
 
@@ -25,26 +25,7 @@
             
         }
 
-        setEventHandlers() {
-            Global.socket.on('yourID', function (data) {
-                //vår player.id = data;
-            });
-
-            Global.socket.on('newPlayer', function (data) {
-                var playerID = data;
-                //new player(data); data är playerns ID
-                //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
-            });
-
-            Global.socket.on('updateCoordinates', function (data) {
-                var id, x, y;
-                id = data.player;
-                x = data.x;
-                y = data.y;
-                //coordinates: data, player: client.id
-                //Set coordinates where player.id = player
-            });
-        }
+       
 
         BroadCastCoordinates()
         {

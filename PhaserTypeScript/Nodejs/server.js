@@ -47,7 +47,7 @@ var SocketServer = (function () {
             console.log("New player has connected: " + client.id);
             client.emit('yourID', client.id);
             console.log("Player ID sent");
-            client.broadcast.emit('newPlayer', client.id);
+            client.broadcast.emit('newPlayer', client.id); //broadcast?
             client.on('playerMoved', function (data) {
                 console.log(client.id + "x:" + data.x + " y:" + data.y);
                 client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: client.id });
