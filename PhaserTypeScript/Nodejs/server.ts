@@ -65,6 +65,11 @@ class SocketServer
                 client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: client.id });
             });
 
+            client.on('disconnect', function () {
+                console.log('user disconnect');
+                client.emit('user disconnected' + client.id);
+            });
+
 
             //client.on("move player", onMovePlayer);
             //client.on("disconnect", onClientDisconnect);

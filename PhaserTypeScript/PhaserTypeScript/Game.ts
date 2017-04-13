@@ -1,5 +1,6 @@
 ﻿/// <reference path="./player.ts"/>
 import * as player from "./player.ts";
+import * as Global from "./app.ts";
 export class GameForFour {
 
     constructor() {
@@ -23,9 +24,10 @@ export class GameForFour {
         this.game.load.image('baddie', 'baddie.png');
         this.game.load.image('bullet', 'bullet.png');
         this.game.load.spritesheet('dude', 'dude.png', 32, 48);
-    }
+        }
 
     create() {
+        setEventHandlers();
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
         this.game.add.sprite(0, 0, 'jungle');
         this.platforms = this.game.add.group();
@@ -120,6 +122,38 @@ export class GameForFour {
             this.player.frame = 0;
         }
     }
+
+    setEventHandlers() {
+
+    Global.socket.on('yourID', function (data) {
+        //vår player.id = data;
+
+    });
+
+    Global.socket.on('newPlayer', function (data) {
+        var playerID = data;
+        //new player(data); data är playerns ID
+        //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
+    });
+
+    Global.socket.on('updateCoordinates', function (data) {
+        var id, x, y;
+        id = data.player;
+        x = data.x;
+        y = data.y;
+        //coordinates: data, player: client.id
+        //Set coordinates where player.id = player
+
+    });
+        
+    function BroadCastCoordinates() {
+        var x = player.body.position.x;
+        var y = player.body.position.y;
+
+        Global.socket.emit('playerMoved', { x: x, y: y, player: null });//PLAYER ID MÅSTE SÄTTAS HÄR
+    }
+
+    BroadCastCoordinates();
     //public players: any = new Array(4);
 
     //public constructor() {
