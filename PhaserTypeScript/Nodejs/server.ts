@@ -56,13 +56,14 @@ class SocketServer
     setEventHandlers(): any {
         this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
-            client.emit('yourID', client.id);
-            console.log("Player ID sent");
+            //client.emit('yourID', client.id);//Skickar aldrig?
             client.broadcast.emit('newPlayer', client.id);
 
             client.on('playerMoved', function (data) {
                 console.log(client.id + "x:" + data.x + " y:" + data.y);
-                client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: client.id });
+                client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+                client.emit('yourID', client.id);//TEST SÅ DET BLIR skickat
+                console.log("Player ID sent");
             });
 
             client.on('disconnect', function () {
