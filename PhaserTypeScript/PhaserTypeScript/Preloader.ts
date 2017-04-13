@@ -12,8 +12,5 @@
             console.log("i preloader");
             this.game.state.start('MainMenu', true, false);
         }
-        startMainMenu() {
-            //this.game.state.start('MainMenu', true, false);
-        }
     }
 }

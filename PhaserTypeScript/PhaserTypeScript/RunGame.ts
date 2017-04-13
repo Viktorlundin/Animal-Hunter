@@ -7,10 +7,10 @@
         platforms: Phaser.Group;
         clientID: any;
         //public playerList = new Array(); Om en lista behövs
-        public playerOne: JungleHunter.Player;
-        public playerTwo: JungleHunter.Player;
-        public playerThree: JungleHunter.Player;
-        public playerFour: JungleHunter.Player;
+        playerOne: JungleHunter.Player;
+        playerTwo: JungleHunter.Player;
+        playerThree: JungleHunter.Player;
+        playerFour: JungleHunter.Player;
 
         create()
         {
