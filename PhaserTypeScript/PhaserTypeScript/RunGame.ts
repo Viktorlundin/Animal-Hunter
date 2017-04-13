@@ -6,7 +6,9 @@
         music: Phaser.Sound;
         platforms: Phaser.Group;
         clientID: any;
-        //public playerList = new Array(); Om en lista behövs
+        //localSocket = Global.socket;
+        //myPlayerID = null;
+        //public myPlayerID = new Array();
         public playerOne: JungleHunter.Player;
         public playerTwo: JungleHunter.Player;
         public playerThree: JungleHunter.Player;
@@ -24,24 +26,73 @@
             this.playerThree = new Player(this.game, 130, 100);
             this.playerFour = new Player(this.game, 130, 200);
 
-            this.setEventHandlers(this.playerOne);
+            //console.log("MY PLAYER ID:" + Global.myID); //this.myPlayerID
         }
 
+        GetFreePlayer() {
+            Global.socket.on('TotalConnections', function (data) {
+                console.log('Total connections:' + data);
+                Global.myID = data;
+                console.log("GLOBAL ID: " + Global.myID);
+            });
+            Global.socket.emit('HowManyTotalConnections', null);
+            //emita
+        }
+
+        CallEventHandler()
+        {
+            //if (Global.myID == null) {
+
+            this.GetFreePlayer();
+            this.GetFreePlayer();
+                console.log("globid=" + Global.myID);
+                if (Global.myID == 1) {
+                    console.log("running event handler");
+                    this.setEventHandlers(this.playerOne);
+                }
+                else if (Global.myID == 2) {
+                    this.setEventHandlers(this.playerTwo);
+                }
+                else if (Global.myID == 3) {
+                    this.setEventHandlers(this.playerThree);
+                }
+                else if (Global.myID == 4) {
+                    this.setEventHandlers(this.playerFour);
+                }
+          //  }
+        }
 
         update()
         {
-            this.Movement(this.playerOne);
-            if (this.clientID != null)
-            {
-                if (this.playerOne.id == this.clientID)
-                    this.Movement(this.playerOne);
-                else if (this.playerTwo.id == this.clientID)
-                    this.Movement(this.playerTwo);
-                else if (this.playerThree.id == this.clientID)
-                    this.Movement(this.playerThree);
-                else if (this.playerFour.id == this.clientID)
-                    this.Movement(this.playerFour);
+            if (Global.myID == null) {
+                //this.GetFreePlayer();
+                this.GetFreePlayer();
+                console.log("globid=" + Global.myID);
+                if (Global.myID == 1) {
+                    console.log("running event handler");
+                    this.setEventHandlers(this.playerOne);
+                }
+                else if (Global.myID == 2) {
+                    this.setEventHandlers(this.playerTwo);
+                }
+                else if (Global.myID == 3) {
+                    this.setEventHandlers(this.playerThree);
+                }
+                else if (Global.myID == 4) {
+                    this.setEventHandlers(this.playerFour);
+                }
             }
+            //if (this.clientID != null)
+           // {
+                if (Global.myID == 1)
+                    this.Movement(this.playerOne);
+                else if (Global.myID == 2)
+                    this.Movement(this.playerTwo);
+                else if (Global.myID == 3)
+                    this.Movement(this.playerThree);
+                else if (Global.myID == 4)
+                    this.Movement(this.playerFour);
+            //}
         }
 
         Movement(playerMe: Player)
@@ -75,6 +126,7 @@
 
         setEventHandlers(playerMe: Player) //Player behövs endast för att kunna sätta players id
         {
+            console.log("event handler set");
             Global.socket.on('yourID', function (data) {
                 //Global.myID = data;
                 playerMe.id = data;
@@ -85,7 +137,7 @@
 
             });
 
-            //Global.socket.on('yourID', this.nigga);
+
 
             Global.socket.on('newPlayer', function (data) {//data = id
                 console.log("NY SPELARE FUNKAR");
@@ -103,6 +155,7 @@
                 id = data.player;
                 x = data.x;
                 y = data.y;
+                console.log("HÄMTAD KORDINAT:" + x + " " + y + " " + id);
                 //coordinates: data, player: client.id
                 //Set coordinates where player.id = player
             });

@@ -194,7 +194,7 @@ var JungleHunter;
             var x = this.body.position.x;
             var y = this.body.position.y;
             //Global.socket.emit('kek', "lol");//denna funkar, PROBLEMET ÄR ATT DET INTE GÅR O EMITA FLERA SAKER SATMIDIGT SOM NEDAN
-            JungleHunter.Global.socket.emit('playerMoved', { x: x, y: y, player: "lol" }); //GÅR EJ ATT EMITA FLERA VÄRDEN SAMTIDIGT!!!!
+            JungleHunter.Global.socket.emit('playerMoved', { x: x, y: y, player: JungleHunter.Global.myID }); //GÅR EJ ATT EMITA FLERA VÄRDEN SAMTIDIGT!!!!
         };
         return Player;
     }(Phaser.Sprite));
@@ -241,20 +241,67 @@ var JungleHunter;
             this.playerTwo = new JungleHunter.Player(this.game, 130, 300);
             this.playerThree = new JungleHunter.Player(this.game, 130, 100);
             this.playerFour = new JungleHunter.Player(this.game, 130, 200);
-            this.setEventHandlers(this.playerOne);
+            //console.log("MY PLAYER ID:" + Global.myID); //this.myPlayerID
+        };
+        RunGame.prototype.GetFreePlayer = function () {
+            JungleHunter.Global.socket.on('TotalConnections', function (data) {
+                console.log('Total connections:' + data);
+                JungleHunter.Global.myID = data;
+                console.log("GLOBAL ID: " + JungleHunter.Global.myID);
+            });
+            JungleHunter.Global.socket.emit('HowManyTotalConnections', null);
+            //emita
+        };
+        RunGame.prototype.CallEventHandler = function () {
+            //if (Global.myID == null) {
+            this.GetFreePlayer();
+            this.GetFreePlayer();
+            console.log("globid=" + JungleHunter.Global.myID);
+            if (JungleHunter.Global.myID == 1) {
+                console.log("running event handler");
+                this.setEventHandlers(this.playerOne);
+            }
+            else if (JungleHunter.Global.myID == 2) {
+                this.setEventHandlers(this.playerTwo);
+            }
+            else if (JungleHunter.Global.myID == 3) {
+                this.setEventHandlers(this.playerThree);
+            }
+            else if (JungleHunter.Global.myID == 4) {
+                this.setEventHandlers(this.playerFour);
+            }
+            //  }
         };
         RunGame.prototype.update = function () {
-            this.Movement(this.playerOne);
-            if (this.clientID != null) {
-                if (this.playerOne.id == this.clientID)
-                    this.Movement(this.playerOne);
-                else if (this.playerTwo.id == this.clientID)
-                    this.Movement(this.playerTwo);
-                else if (this.playerThree.id == this.clientID)
-                    this.Movement(this.playerThree);
-                else if (this.playerFour.id == this.clientID)
-                    this.Movement(this.playerFour);
+            if (JungleHunter.Global.myID == null) {
+                //this.GetFreePlayer();
+                this.GetFreePlayer();
+                console.log("globid=" + JungleHunter.Global.myID);
+                if (JungleHunter.Global.myID == 1) {
+                    console.log("running event handler");
+                    this.setEventHandlers(this.playerOne);
+                }
+                else if (JungleHunter.Global.myID == 2) {
+                    this.setEventHandlers(this.playerTwo);
+                }
+                else if (JungleHunter.Global.myID == 3) {
+                    this.setEventHandlers(this.playerThree);
+                }
+                else if (JungleHunter.Global.myID == 4) {
+                    this.setEventHandlers(this.playerFour);
+                }
             }
+            //if (this.clientID != null)
+            // {
+            if (JungleHunter.Global.myID == 1)
+                this.Movement(this.playerOne);
+            else if (JungleHunter.Global.myID == 2)
+                this.Movement(this.playerTwo);
+            else if (JungleHunter.Global.myID == 3)
+                this.Movement(this.playerThree);
+            else if (JungleHunter.Global.myID == 4)
+                this.Movement(this.playerFour);
+            //}
         };
         RunGame.prototype.Movement = function (playerMe) {
             playerMe.body.velocity.x = 0;
@@ -284,6 +331,7 @@ var JungleHunter;
             }
         };
         RunGame.prototype.setEventHandlers = function (playerMe) {
+            console.log("event handler set");
             JungleHunter.Global.socket.on('yourID', function (data) {
                 //Global.myID = data;
                 playerMe.id = data;
@@ -291,7 +339,6 @@ var JungleHunter;
                 //this.playerList.push(new Player(this.game, 130, 200, data));
                 //vår player.id = data;
             });
-            //Global.socket.on('yourID', this.nigga);
             JungleHunter.Global.socket.on('newPlayer', function (data) {
                 console.log("NY SPELARE FUNKAR");
                 //this.player = new Player(this.game, 130, 200, "lol");
@@ -307,6 +354,7 @@ var JungleHunter;
                 id = data.player;
                 x = data.x;
                 y = data.y;
+                console.log("HÄMTAD KORDINAT:" + x + " " + y + " " + id);
                 //coordinates: data, player: client.id
                 //Set coordinates where player.id = player
             });

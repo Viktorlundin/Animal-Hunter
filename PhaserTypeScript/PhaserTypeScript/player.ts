@@ -27,7 +27,7 @@
             var x = this.body.position.x;
             var y = this.body.position.y;
             //Global.socket.emit('kek', "lol");//denna funkar, PROBLEMET ÄR ATT DET INTE GÅR O EMITA FLERA SAKER SATMIDIGT SOM NEDAN
-            Global.socket.emit('playerMoved', { x: x, y: y, player: "lol" });//GÅR EJ ATT EMITA FLERA VÄRDEN SAMTIDIGT!!!!
+            Global.socket.emit('playerMoved', { x: x, y: y, player: Global.myID });//GÅR EJ ATT EMITA FLERA VÄRDEN SAMTIDIGT!!!!
         }
     }
 }
