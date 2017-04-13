@@ -101,3 +101,7 @@ module JungleHunter {
 
     }
 }
+window.onload = () => {
+    new JungleHunter.Game();
+    //new TypeScriptPhaserApp1.Client.GameEngine();
+};
