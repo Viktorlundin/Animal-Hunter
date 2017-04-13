@@ -4,6 +4,8 @@ module JungleHunter {
     //import * as Player from "./player";
     export class Global {
         static socket: any;
+        static myID: any;
+        myID = null;
         socket = null;
     }
 
