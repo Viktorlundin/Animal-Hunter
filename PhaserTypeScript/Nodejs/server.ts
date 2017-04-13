@@ -31,7 +31,7 @@ class SocketServer
     server: any = require('http').createServer(this.app);
     io: any = require('socket.io')(this.server);
     path = require('path');
-
+    activeConnections: any = 0;
 
     constructor() { }
 
@@ -53,11 +53,13 @@ class SocketServer
       console.log ('A player moves on map ' + msg.map + ' on coords ' + msg.coords);
         });
 */
-    setEventHandlers(): any {
+    setEventHandlers(activeConnections): any {
         this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
+            activeConnections++;
+            console.log("ActiveConnections: " + activeConnections)
             //client.emit('yourID', client.id);//Skickar aldrig?
-            client.broadcast.emit('newPlayer', client.id);
+            client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
 
             client.on('playerMoved', function (data) {
                 console.log(client.id + "x:" + data.x + " y:" + data.y);
@@ -68,8 +70,18 @@ class SocketServer
 
             client.on('disconnect', function () {
                 console.log('user disconnect');
-                client.emit('user disconnected' + client.id);
+                activeConnections--;
+                client.broadcast.emit('user disconnected' + client.id);
+                console.log("ActiveConnections: " + activeConnections)
             });
+
+            client.on('HowManyTotalConnections', function () {
+                console.log('Total connections sent');
+                client.emit('TotalConnections', activeConnections);
+            });
+
+
+          
 
 
             //client.on("move player", onMovePlayer);
@@ -92,7 +104,7 @@ class SocketServer
 
 
 let SS = new SocketServer();
-SS.setEventHandlers();
+SS.setEventHandlers(SS.activeConnections);
 SS.StartWebserver();
 
 

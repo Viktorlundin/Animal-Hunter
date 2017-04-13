@@ -24,6 +24,7 @@ var SocketServer = (function () {
         this.server = require('http').createServer(this.app);
         this.io = require('socket.io')(this.server);
         this.path = require('path');
+        this.activeConnections = 0;
     }
     SocketServer.prototype.StartWebserver = function () {
         this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
@@ -42,11 +43,13 @@ var SocketServer = (function () {
   console.log ('A player moves on map ' + msg.map + ' on coords ' + msg.coords);
     });
 */
-    SocketServer.prototype.setEventHandlers = function () {
+    SocketServer.prototype.setEventHandlers = function (activeConnections) {
         this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
+            activeConnections++;
+            console.log("ActiveConnections: " + activeConnections);
             //client.emit('yourID', client.id);//Skickar aldrig?
-            client.broadcast.emit('newPlayer', client.id);
+            client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
             client.on('playerMoved', function (data) {
                 console.log(client.id + "x:" + data.x + " y:" + data.y);
                 client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
@@ -55,7 +58,13 @@ var SocketServer = (function () {
             });
             client.on('disconnect', function () {
                 console.log('user disconnect');
-                client.emit('user disconnected' + client.id);
+                activeConnections--;
+                client.broadcast.emit('user disconnected' + client.id);
+                console.log("ActiveConnections: " + activeConnections);
+            });
+            client.on('HowManyTotalConnections', function () {
+                console.log('Total connections sent');
+                client.emit('TotalConnections', activeConnections);
             });
             //client.on("move player", onMovePlayer);
             //client.on("disconnect", onClientDisconnect);
@@ -74,7 +83,7 @@ var SocketServer = (function () {
     return SocketServer;
 }());
 var SS = new SocketServer();
-SS.setEventHandlers();
+SS.setEventHandlers(SS.activeConnections);
 SS.StartWebserver();
 //// sending to sender-client only
 //socket.emit('message', "this is a test");
