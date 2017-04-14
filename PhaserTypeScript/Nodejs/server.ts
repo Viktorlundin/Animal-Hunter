@@ -58,14 +58,10 @@ class SocketServer
             console.log("New player has connected: " + client.id);
             activeConnections++;
             console.log("ActiveConnections: " + activeConnections)
-            //client.emit('yourID', client.id);//Skickar aldrig?
             client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
 
             client.on('playerMoved', function (data) {
-                console.log(client.id + "x:" + data.x + " y:" + data.y);
                 client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
-                client.emit('yourID', client.id);//TEST SÅ DET BLIR skickat
-                console.log("Player ID sent");
             });
 
             client.on('disconnect', function () {
