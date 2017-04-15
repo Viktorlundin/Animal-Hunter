@@ -1,11 +1,8 @@
 ﻿
 
 module JungleHunter {
-    //import * as Player from "./player";
     export class Global {
         static socket: any;
-        static myID: any;
-        myID = null;
         socket = null;
     }
 
@@ -18,7 +15,7 @@ module JungleHunter {
             this.state.add('MainMenu', MainMenu, false);
             this.state.add('RunGame', RunGame, false);
             console.log("try start boot");
-            this.state.start('Boot'); //Går aldrig till boot
+            this.state.start('Boot');
         }
 
 
