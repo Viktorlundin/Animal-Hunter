@@ -27,6 +27,8 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="index.html" />
+    <Content Include="phaser-input.js" />
+    <Content Include="phaser-input.min.js" />
     <Content Include="phaser.js" />
     <Content Include="phaser.min.js" />
     <Content Include="socket.io.js" />
@@ -38,6 +40,7 @@
     <TypeScriptCompile Include="Main.ts" />
     <TypeScriptCompile Include="MainMenu.ts" />
     <TypeScriptCompile Include="p2.d.ts" />
+    <TypeScriptCompile Include="phaser-input.d.ts" />
     <TypeScriptCompile Include="phaser.d.ts" />
     <TypeScriptCompile Include="pixi.d.ts" />
     <TypeScriptCompile Include="player.ts" />
@@ -46,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <Content Include="phaser-input.js.map" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

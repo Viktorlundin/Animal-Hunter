@@ -126,13 +126,52 @@ var JungleHunter;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
+    var Global = (function () {
+        function Global() {
+            this.socket = null;
+        }
+        return Global;
+    }());
+    JungleHunter.Global = Global;
+    var Main = (function (_super) {
+        __extends(Main, _super);
+        function Main() {
+            var _this = _super.call(this, 1010, 790, Phaser.AUTO, 'content', null) || this;
+            _this.state.add('Boot', JungleHunter.Boot, false);
+            _this.state.add('Preloader', JungleHunter.Preloader, false);
+            _this.state.add('MainMenu', JungleHunter.MainMenu, false);
+            _this.state.add('RunGame', JungleHunter.RunGame, false);
+            console.log("try start boot");
+            _this.state.start('Boot');
+            return _this;
+        }
+        return Main;
+    }(Phaser.Game));
+    JungleHunter.Main = Main;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
     var MainMenu = (function (_super) {
         __extends(MainMenu, _super);
         function MainMenu() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         MainMenu.prototype.create = function () {
-            this.game.state.start('RunGame', true, false);
+            //this.game.state.start('RunGame', true, false);
+            var plugin = new PhaserInput.Plugin(this.game, this.game.plugins);
+            this.add.plugin(plugin);
+            var input = this.game.add.inputField(10, 90, {
+                font: '18px Arial',
+                fill: '#212121',
+                fontWeight: 'bold',
+                width: 150,
+                padding: 8,
+                borderWidth: 1,
+                borderColor: '#000',
+                borderRadius: 6,
+                placeHolder: 'Password',
+                type: PhaserInput.InputType.password
+            });
         };
         MainMenu.prototype.startGame = function () {
             //this.game.state.start('runGame', true, false)
@@ -277,30 +316,5 @@ var JungleHunter;
         return RunGame;
     }(Phaser.State));
     JungleHunter.RunGame = RunGame;
-})(JungleHunter || (JungleHunter = {}));
-var JungleHunter;
-(function (JungleHunter) {
-    var Global = (function () {
-        function Global() {
-            this.socket = null;
-        }
-        return Global;
-    }());
-    JungleHunter.Global = Global;
-    var Main = (function (_super) {
-        __extends(Main, _super);
-        function Main() {
-            var _this = _super.call(this, 1010, 790, Phaser.AUTO, 'content', null) || this;
-            _this.state.add('Boot', JungleHunter.Boot, false);
-            _this.state.add('Preloader', JungleHunter.Preloader, false);
-            _this.state.add('MainMenu', JungleHunter.MainMenu, false);
-            _this.state.add('RunGame', JungleHunter.RunGame, false);
-            console.log("try start boot");
-            _this.state.start('Boot');
-            return _this;
-        }
-        return Main;
-    }(Phaser.Game));
-    JungleHunter.Main = Main;
 })(JungleHunter || (JungleHunter = {}));
 //# sourceMappingURL=game.js.map
