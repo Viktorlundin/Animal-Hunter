@@ -2,6 +2,7 @@
     export class MainMenu extends Phaser.State {
         background: Phaser.Sprite;
         startbutton: Phaser.Button;
+        tutorialbutton: Phaser.Button;
 
 
         create() {

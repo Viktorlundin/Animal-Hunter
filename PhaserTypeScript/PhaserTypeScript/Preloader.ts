@@ -17,7 +17,7 @@
 
         create() {
             console.log("i preloader");
-            var tween = this.add.tween(this.loaderText).to({ alpha: 0 }, 4000,
+            var tween = this.add.tween(this.loaderText).to({ alpha: 0 }, 1000,
                 Phaser.Easing.Linear.None, true);
             tween.onComplete.add(this.startMainMenu, this);
         }

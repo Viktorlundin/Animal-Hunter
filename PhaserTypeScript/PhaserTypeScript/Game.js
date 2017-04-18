@@ -1,14 +1,14 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var JungleHunter;
 (function (JungleHunter) {
     //import * as game from "./Game.ts";
     console.log("yoyoyo");
     window.onload = function () { var game = new JungleHunter.Game(); };
 })(JungleHunter || (JungleHunter = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var JungleHunter;
 (function (JungleHunter) {
     var Boot = (function (_super) {
@@ -129,7 +129,7 @@ var JungleHunter;
         };
         Preloader.prototype.create = function () {
             console.log("i preloader");
-            var tween = this.add.tween(this.loaderText).to({ alpha: 0 }, 4000, Phaser.Easing.Linear.None, true);
+            var tween = this.add.tween(this.loaderText).to({ alpha: 0 }, 1000, Phaser.Easing.Linear.None, true);
             tween.onComplete.add(this.startMainMenu, this);
         };
         Preloader.prototype.startMainMenu = function () {
