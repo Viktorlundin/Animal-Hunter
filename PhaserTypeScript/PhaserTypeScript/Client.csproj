@@ -37,7 +37,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="Boot.ts" />
-    <TypeScriptCompile Include="Game.ts" />
+    <TypeScriptCompile Include="Main.ts" />
     <TypeScriptCompile Include="MainMenu.ts" />
     <TypeScriptCompile Include="p2.d.ts" />
     <TypeScriptCompile Include="phaser-input.d.ts" />
