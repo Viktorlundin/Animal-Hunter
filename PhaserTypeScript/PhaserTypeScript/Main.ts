@@ -6,7 +6,7 @@ module JungleHunter {
         socket = null;
     }
 
-    export class Game extends Phaser.Game {
+    export class Main extends Phaser.Game {
         constructor() {
             super(1010, 790, Phaser.AUTO, 'content', null);
             

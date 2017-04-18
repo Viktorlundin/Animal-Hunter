@@ -14,9 +14,9 @@ class SocketServer
     {
 
         // Connect to the db
-        this.db.connect("mongodb://localhost:27017/exampleDb", function (err, db) {
+        this.db.connect("mongodb://localhost:27017/JungleHunter", function (err, db) {
             if (!err) {
-                console.log("We are connected");
+                console.log("Connected to MongoDB");
             }
         });
 
@@ -66,16 +66,15 @@ class SocketServer
 
     EventCanIRegister(msg, client)
     {
-        var collection = this.db.collection('test');
-        var doc1 = { 'Email': msg.email }; //password, username etc?
-        //var doc2 = { 'hello': 'doc2' };
-        //var lotsOfDocs = [{ 'hello': 'doc3' }, { 'hello': 'doc4' }];
+        var collection = this.db.collection('accounts');
+        var newPlayerDoc =
+            {
+                email: msg.email,
+                password: msg.password,
+                username: msg.username
+            }
 
-        collection.insert(doc1);
-
-                //collection.insert(doc2, { w: 1 }, function (err, result) { });
-
-                //collection.insert(lotsOfDocs, { w: 1 }, function (err, result) { });
+        collection.insert(newPlayerDoc);
     }
 
     EventCanILogin(msg, client)

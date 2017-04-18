@@ -2,7 +2,7 @@ var JungleHunter;
 (function (JungleHunter) {
     //import * as game from "./Game.ts";
     console.log("yoyoyo");
-    window.onload = function () { var game = new JungleHunter.Game(); };
+    window.onload = function () { var game = new JungleHunter.Main(); };
     //function preload()
     //{
     //    game.load.image('jungle', 'Jungle.png');
@@ -123,31 +123,6 @@ var JungleHunter;
         return Boot;
     }(Phaser.State));
     JungleHunter.Boot = Boot;
-})(JungleHunter || (JungleHunter = {}));
-var JungleHunter;
-(function (JungleHunter) {
-    var Global = (function () {
-        function Global() {
-            this.socket = null;
-        }
-        return Global;
-    }());
-    JungleHunter.Global = Global;
-    var Game = (function (_super) {
-        __extends(Game, _super);
-        function Game() {
-            var _this = _super.call(this, 1010, 790, Phaser.AUTO, 'content', null) || this;
-            _this.state.add('Boot', JungleHunter.Boot, false);
-            _this.state.add('Preloader', JungleHunter.Preloader, false);
-            _this.state.add('MainMenu', JungleHunter.MainMenu, false);
-            _this.state.add('RunGame', JungleHunter.RunGame, false);
-            console.log("try start boot");
-            _this.state.start('Boot');
-            return _this;
-        }
-        return Game;
-    }(Phaser.Game));
-    JungleHunter.Game = Game;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
@@ -302,5 +277,30 @@ var JungleHunter;
         return RunGame;
     }(Phaser.State));
     JungleHunter.RunGame = RunGame;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
+    var Global = (function () {
+        function Global() {
+            this.socket = null;
+        }
+        return Global;
+    }());
+    JungleHunter.Global = Global;
+    var Main = (function (_super) {
+        __extends(Main, _super);
+        function Main() {
+            var _this = _super.call(this, 1010, 790, Phaser.AUTO, 'content', null) || this;
+            _this.state.add('Boot', JungleHunter.Boot, false);
+            _this.state.add('Preloader', JungleHunter.Preloader, false);
+            _this.state.add('MainMenu', JungleHunter.MainMenu, false);
+            _this.state.add('RunGame', JungleHunter.RunGame, false);
+            console.log("try start boot");
+            _this.state.start('Boot');
+            return _this;
+        }
+        return Main;
+    }(Phaser.Game));
+    JungleHunter.Main = Main;
 })(JungleHunter || (JungleHunter = {}));
 //# sourceMappingURL=game.js.map

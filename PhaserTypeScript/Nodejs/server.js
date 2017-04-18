@@ -8,9 +8,9 @@ var SocketServer = (function () {
         this.activeConnections = 0;
         this.db = require('mongodb').MongoClient;
         // Connect to the db
-        this.db.connect("mongodb://localhost:27017/exampleDb", function (err, db) {
+        this.db.connect("mongodb://localhost:27017/JungleHunter", function (err, db) {
             if (!err) {
-                console.log("We are connected");
+                console.log("Connected to MongoDB");
             }
         });
     }
@@ -49,13 +49,13 @@ var SocketServer = (function () {
         client.emit('TotalConnections', this.activeConnections);
     };
     SocketServer.prototype.EventCanIRegister = function (msg, client) {
-        var collection = this.db.collection('test');
-        var doc1 = { 'Email': msg.email }; //password, username etc?
-        //var doc2 = { 'hello': 'doc2' };
-        //var lotsOfDocs = [{ 'hello': 'doc3' }, { 'hello': 'doc4' }];
-        collection.insert(doc1);
-        //collection.insert(doc2, { w: 1 }, function (err, result) { });
-        //collection.insert(lotsOfDocs, { w: 1 }, function (err, result) { });
+        var collection = this.db.collection('accounts');
+        var newPlayerDoc = {
+            email: msg.email,
+            password: msg.password,
+            username: msg.username
+        };
+        collection.insert(newPlayerDoc);
     };
     SocketServer.prototype.EventCanILogin = function (msg, client) {
     };
