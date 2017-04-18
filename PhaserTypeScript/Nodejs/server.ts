@@ -1,28 +1,4 @@
-﻿//importera och skapa moduler
-//http & express, webserver
-//var express: any = require('express');
-//var app: any = express();
-//var server: any = require('http').createServer(app);
-//socket.io
-//var io: any = require('socket.io')(server);
-
-//path för att hitta filväg utan säkerhetsproblem för servern(för att hitta index.html i annan map)
-//var path = require('path');
-
-
-//Allt i denna mappen localhost:port/includes är public för den som besöker hemsidan,
-//där kan vi lägga jquery libary etc.
-//app.use(express.static(__dirname + '/../PhaserTypeScript/'));
-
-////Skickar hemsidan index.html när någon besöker hemsidan.
-//app.get('/', function (req, res, next)
-//{
-//    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
-//});
-
- //Lysnar på trafik på port 1337
-
-//socket.io server
+﻿
 
 class SocketServer
 {
@@ -31,7 +7,7 @@ class SocketServer
     server: any = require('http').createServer(this.app);
     io: any = require('socket.io')(this.server);
     path = require('path');
-
+    activeConnections: any = 0;
 
     constructor() { }
 
@@ -44,32 +20,31 @@ class SocketServer
         console.log("Server started");
     }
 
-        /*CLIENT SIDAN:
-        function movePlayer () {
-        socket.emit ('player move', {map: 4, coords: '0.0'});
-     }
-    
-        socket.on ('updatePlayer', function (msg) {
-      console.log ('A player moves on map ' + msg.map + ' on coords ' + msg.coords);
-        });
-*/
-    setEventHandlers(): any {
+    setEventHandlers(activeConnections): any {
         this.io.on("connection", function (client) {
             console.log("New player has connected: " + client.id);
-            //client.emit('yourID', client.id);//Skickar aldrig?
-            client.broadcast.emit('newPlayer', client.id);
+            activeConnections++;
+            console.log("ActiveConnections: " + activeConnections)
+            client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
 
             client.on('playerMoved', function (data) {
-                console.log(client.id + "x:" + data.x + " y:" + data.y);
                 client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
-                client.emit('yourID', client.id);//TEST SÅ DET BLIR skickat
-                console.log("Player ID sent");
             });
 
             client.on('disconnect', function () {
                 console.log('user disconnect');
-                client.emit('user disconnected' + client.id);
+                activeConnections--;
+                client.broadcast.emit('user disconnected' + client.id);
+                console.log("ActiveConnections: " + activeConnections)
             });
+
+            client.on('HowManyTotalConnections', function () {
+                console.log('Total connections sent');
+                client.emit('TotalConnections', activeConnections);
+            });
+
+
+          
 
 
             //client.on("move player", onMovePlayer);
@@ -92,7 +67,7 @@ class SocketServer
 
 
 let SS = new SocketServer();
-SS.setEventHandlers();
+SS.setEventHandlers(SS.activeConnections);
 SS.StartWebserver();
 
 

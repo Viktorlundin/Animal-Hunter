@@ -5,12 +5,8 @@
         background: Phaser.Sprite;
         music: Phaser.Sound;
         platforms: Phaser.Group;
-        clientID: any;
-        //public playerList = new Array(); Om en lista behövs
-        public playerOne: JungleHunter.Player;
-        public playerTwo: JungleHunter.Player;
-        public playerThree: JungleHunter.Player;
-        public playerFour: JungleHunter.Player;
+        playerID: any = null;
+        public playerList = new Array();
 
         create()
         {
@@ -20,93 +16,89 @@
             this.platforms = this.add.group();
             this.platforms.enableBody = true;
 
-            this.playerOne = new Player(this.game, 130, 250);
-            this.playerTwo = new Player(this.game, 130, 300);
-            this.playerThree = new Player(this.game, 130, 100);
-            this.playerFour = new Player(this.game, 130, 200);
-
-            this.setEventHandlers(this.playerOne);
+            for (var i = 1; i < 5; i++)
+            {
+                this.playerList[i] = new Player(this.game, 900, (100+(i*130)));
+            }
+            this.setEventHandlers();
+            
         }
-
 
         update()
         {
-            this.Movement(this.playerOne);
-            if (this.clientID != null)
+            if (this.playerID != null)
             {
-                if (this.playerOne.id == this.clientID)
-                    this.Movement(this.playerOne);
-                else if (this.playerTwo.id == this.clientID)
-                    this.Movement(this.playerTwo);
-                else if (this.playerThree.id == this.clientID)
-                    this.Movement(this.playerThree);
-                else if (this.playerFour.id == this.clientID)
-                    this.Movement(this.playerFour);
+                this.Movement(this.playerList[this.playerID]);
             }
         }
 
-        Movement(playerMe: Player)
+        Movement(player: Player)
         {
-            playerMe.body.velocity.x = 0;
-            if (playerMe.cursors.left.isDown) {
-                playerMe.body.velocity.x = -150;
-                playerMe.animations.play('left');
-                playerMe.BroadCastCoordinates();
+            player.body.velocity.x = 0;
+            if (player.cursors.left.isDown) {
+                player.body.velocity.x = -150;
+                player.animations.play('left');
             }
-            else if (playerMe.cursors.right.isDown) {
-                playerMe.body.velocity.x = 150;
-                playerMe.animations.play('left');
-                playerMe.BroadCastCoordinates();
+            else if (player.cursors.right.isDown) {
+                player.body.velocity.x = 150;
+                player.animations.play('left');
             }
-            else if (playerMe.cursors.down.isDown) {
-                playerMe.body.velocity.y = 150;
-                playerMe.animations.play('left');
-                playerMe.BroadCastCoordinates();
+            else if (player.cursors.down.isDown) {
+                player.body.velocity.y = 150;
+                player.animations.play('left');
             }
-            else if (playerMe.cursors.up.isDown) {
-                playerMe.body.velocity.y = -150;
-                playerMe.animations.play('left');
-                playerMe.BroadCastCoordinates();
+            else if (player.cursors.up.isDown) {
+                player.body.velocity.y = -150;
+                player.animations.play('left');
             }
             else {
-                playerMe.animations.stop();
-                playerMe.frame = 0;
+                player.animations.stop();
+                player.frame = 0;
             }
+            this.BroadCastPlayerCoordinates(player);
         }
 
-        setEventHandlers(playerMe: Player) //Player behövs endast för att kunna sätta players id
+        EventSetMyPlayerID(data)
         {
-            Global.socket.on('yourID', function (data) {
-                //Global.myID = data;
-                playerMe.id = data;
-                console.log("MIN ID AR NU:" + playerMe.id);// + this.playerMe.id
-                //this.playerList.push(new Player(this.game, 130, 200, data));
-                
-                //vår player.id = data;
+            this.playerID = data;
+        }
 
-            });
+        EventNewPlayer(data)
+        {
 
-            //Global.socket.on('yourID', this.nigga);
+        }
 
-            Global.socket.on('newPlayer', function (data) {//data = id
-                console.log("NY SPELARE FUNKAR");
-                //this.player = new Player(this.game, 130, 200, "lol");
-                //this.playerList.push(new Player(this.game, 130, 200, "kek"));
-                //this.playerList.push(new Player(this.game, 130, 200, data));
-                //this.playerList.push(new Player(this.game, 130, 200, data));//error
-                //new player(data); data är playerns ID
-                //spelarna lär finnas i en lista så man kan iterera den och hitta spelarens id
-            });
+        EventUpdateCoordinates(data)
+        {
+            var id, x, y;
+            id = data.player;
+            x = data.x;
+            y = data.y;
+            this.playerList[id].x = x;
+            this.playerList[id].y = y;
+        }
 
-            Global.socket.on('updateCoordinates', function (data) {
-                console.log("NY KORDINAT");
-                var id, x, y;
-                id = data.player;
-                x = data.x;
-                y = data.y;
-                //coordinates: data, player: client.id
-                //Set coordinates where player.id = player
-            });
+        BroadCastPlayerCoordinates(player: Player) {
+
+            if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition)))
+            { 
+                var x = player.body.position.x;
+                var y = player.body.position.y;
+                Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID });
+                console.log("coords sent");
+            }
+            player.lastXPosition = player.x;
+            player.lastYPosition = player.y;
+        }
+
+        setEventHandlers()
+        {
+            console.log("event handler set");
+            Global.socket.on('TotalConnections', (data) => this.EventSetMyPlayerID(data));
+            Global.socket.on('newPlayer', (data) => this.EventNewPlayer(data));
+            Global.socket.on('updateCoordinates', (data) => this.EventUpdateCoordinates(data));
+            //Call
+            Global.socket.emit('HowManyTotalConnections', null);
         }
 
     }
