@@ -36,7 +36,7 @@ class SocketServer
         console.log("New player has connected: " + client.id);
         this.activeConnections++;
         console.log("ActiveConnections: " + this.activeConnections)
-        client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
+        client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
         //Sätt lyssna funktioner för denna klient
         client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
         client.on('disconnect', () => this.EventDisconnected(client));
