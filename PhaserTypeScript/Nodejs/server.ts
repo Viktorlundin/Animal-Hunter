@@ -7,9 +7,20 @@ class SocketServer
     server: any = require('http').createServer(this.app);
     io: any = require('socket.io')(this.server);
     path = require('path');
-    activeConnections: any = 0;
+    activeConnections: number = 0;
+    db = require('mongodb').MongoClient;
 
-    constructor() { }
+    constructor()
+    {
+
+        // Connect to the db
+        this.db.connect("mongodb://localhost:27017/exampleDb", function (err, db) {
+            if (!err) {
+                console.log("We are connected");
+            }
+        });
+
+    }
 
     StartWebserver(): any {
         this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
@@ -20,28 +31,63 @@ class SocketServer
         console.log("Server started");
     }
 
-    setEventHandlers(activeConnections): any {
-        this.io.on("connection", function (client) {
-            console.log("New player has connected: " + client.id);
-            activeConnections++;
-            console.log("ActiveConnections: " + activeConnections)
-            client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
+    EventConnection(client)
+    {
+        console.log("New player has connected: " + client.id);
+        this.activeConnections++;
+        console.log("ActiveConnections: " + this.activeConnections)
+        client.broadcast.emit('newPlayer', client.id); //id + anslutningnr
+        //Sätt lyssna funktioner för denna klient
+        client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
+        client.on('disconnect', () => this.EventDisconnected(client));
+        client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
+        client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
+        client.on('CanILogin', (msg) => this.EventCanIRegister(msg, client));
+    }
 
-            client.on('playerMoved', function (data) {
-                client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
-            });
+    EventPlayerMoved(data, client)
+    {
+        client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+    }
 
-            client.on('disconnect', function () {
-                console.log('user disconnect');
-                activeConnections--;
-                client.broadcast.emit('user disconnected' + client.id);
-                console.log("ActiveConnections: " + activeConnections)
-            });
+    EventDisconnected(client)
+    {
+        console.log('user disconnect');
+        this.activeConnections--;
+        client.broadcast.emit('user disconnected' + client.id);
+        console.log("ActiveConnections: " + this.activeConnections)
+    }
 
-            client.on('HowManyTotalConnections', function () {
-                console.log('Total connections sent');
-                client.emit('TotalConnections', activeConnections);
-            });
+    EventHowManyConnections(client)
+    {
+        console.log('Total connections sent');
+        client.emit('TotalConnections', this.activeConnections);
+    }
+
+    EventCanIRegister(msg, client)
+    {
+        var collection = this.db.collection('test');
+        var doc1 = { 'Email': msg.email }; //password, username etc?
+        //var doc2 = { 'hello': 'doc2' };
+        //var lotsOfDocs = [{ 'hello': 'doc3' }, { 'hello': 'doc4' }];
+
+        collection.insert(doc1);
+
+                //collection.insert(doc2, { w: 1 }, function (err, result) { });
+
+                //collection.insert(lotsOfDocs, { w: 1 }, function (err, result) { });
+    }
+
+    EventCanILogin(msg, client)
+    {
+
+    }
+
+    
+
+    setEventHandlers(): any {
+        this.io.on("connection", (client) => this.EventConnection(client));
+            
 
 
           
@@ -60,14 +106,14 @@ class SocketServer
             //client.on("select stage", Lobby.onStageSelect);
             //client.on("enter pending game", Lobby.onEnterPendingGame);
             //client.on("leave pending game", Lobby.onLeavePendingGame);
-        });
+
     }
 
 }
 
 
 let SS = new SocketServer();
-SS.setEventHandlers(SS.activeConnections);
+SS.setEventHandlers();
 SS.StartWebserver();
 
 
