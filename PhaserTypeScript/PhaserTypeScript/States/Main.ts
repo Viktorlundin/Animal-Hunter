@@ -9,9 +9,9 @@ module JungleHunter {
     export class Main extends Phaser.Game {
         constructor() {
             super(1010, 790, Phaser.AUTO, 'content', null);
-            
             this.state.add('Boot', Boot, false);
             this.state.add('Preloader', Preloader, false);
+            this.state.add('Login', Login, false);
             this.state.add('MainMenu', MainMenu, false);
             this.state.add('RunGame', RunGame, false);
             console.log("try start boot");
@@ -98,3 +98,7 @@ module JungleHunter {
 
     }
 }
+window.onload = () => {
+    new JungleHunter.Main();
+    //new TypeScriptPhaserApp1.Client.GameEngine();
+};

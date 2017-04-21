@@ -23,9 +23,9 @@ declare module PhaserInput {
         value: string;
         focus(): void;
         blur(): void;
-        readonly hasSelection: boolean;
-        readonly caretStart: number;
-        readonly caretEnd: number;
+        public hasSelection: boolean;
+        public caretStart: number;
+        public caretEnd: number;
         getCaretPosition(): number;
         setCaretPosition(pos: number): void;
     }
@@ -149,8 +149,11 @@ declare module PhaserInput {
         constructor(game: Phaser.Game, parent: Phaser.PluginManager);
         private addInputFieldFactory();
     }
-} declare module Phaser {
+    
+}
+declare module Phaser {
     interface GameObjectFactory {
         inputField: (x: number, y: number, inputOptions?: PhaserInput.InputOptions, group?: Phaser.Group) => PhaserInput.InputField;
     }
 }
+

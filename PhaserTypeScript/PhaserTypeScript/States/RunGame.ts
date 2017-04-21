@@ -10,6 +10,7 @@
 
         create()
         {
+            console.log("spelet är igång");
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
             this.platforms = this.add.group();

@@ -17,6 +17,8 @@
                 placeHolder: 'Password',
                 type: PhaserInput.InputType.password
             });
+            Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
+            Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
         }
 
         startGame() {
