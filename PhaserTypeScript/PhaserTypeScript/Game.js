@@ -172,6 +172,8 @@ var JungleHunter;
                 placeHolder: 'Password',
                 type: PhaserInput.InputType.password
             });
+            JungleHunter.Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
+            JungleHunter.Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
         };
         MainMenu.prototype.startGame = function () {
             //this.game.state.start('runGame', true, false)
