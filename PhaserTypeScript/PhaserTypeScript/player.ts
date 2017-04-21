@@ -1,48 +1,26 @@
-﻿class Player
+﻿module JungleHunter
 {
-    constructor() { }
-    speed: any = 150;
-    player: any;
-    loadPlayer = function ()
+    export class Player extends Phaser.Sprite
     {
-        this.player = game.add.sprite(1000, game.world.height + 100, 'dude');
-        game.physics.arcade.enable(this.player);
-        this.player.body.collideWorldBounds = true;
-        this.player.body.drag.y = 1000;
-        this.player.animations.add('left', [0, 1, 2, 3], 10, true);
-        this.player.animations.add('right', [5, 6, 7, 8], 10, true);
-        cursors = game.input.keyboard.createCursorKeys();
-    }
+        public x: number = null;;
+        public y: number = null;
+        public lastXPosition: number = null;
+        public lastYPosition: number = null;
+        public cursors = this.game.input.keyboard.createCursorKeys();
 
-    movePlayer = function ()
-    {
-        this.player.body.velocity.x = 0;
-        this.player.body.velocity.y = 0;
+        constructor(game: Phaser.Game, x: number, y: number)
+        {
+            super(game, x, y, 'dude', 0);
+            this.x = x;
+            this.y = y;
 
-        if (cursors.left.isDown)
-        {
-            this.player.body.velocity.x = -this.speed;
-            this.player.animations.play('left');
-        }
-        else if (cursors.right.isDown)
-        {
-            this.player.body.velocity.x = this.speed;
-            this.player.animations.play('left');
-        }
-        else if (cursors.down.isDown)
-        {
-            this.player.body.velocity.y = this.speed;
-            this.player.animations.play('left');
-        }
-        else if (cursors.up.isDown)
-        {
-            this.player.body.velocity.y = -this.speed;
-            this.player.animations.play('left');
-        }
-        else
-        {
-            this.player.animations.stop();
-            this.player.frame = 0;
+            this.animations.add('left', [0, 1, 2, 3], 10, true);
+            this.animations.add('right', [5, 6, 7, 8], 10, true);
+            this.game.physics.arcade.enable(this);
+            this.body.collideWorldBounds = true;
+            this.body.drag.y = 1000;
+            this.game.physics.arcade.enable(this);
+            this.game.add.existing(this);
         }
     }
 }

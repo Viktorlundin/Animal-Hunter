@@ -3,14 +3,23 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>TypeScript HTML App</title>
+    <title>Jungle Hunter</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
     <script src="phaser.js"></script>
-    <script src="app.js"></script>
+    <script src="game.js"></script>
+    <script src="Plugins/phaser-input.js"></script>
+    <script src="http://localhost:1337/socket.io/socket.io.js"></script>
+    
+    <script>
+        var socket = io.connect();
+        JungleHunter.Global.socket = socket;
+    </script>
+
+
+
 </head>
 <body>
     <h1>Jungle Hunter Game</h1>
-    
     <div id="content"></div>
 </body>
 </html>

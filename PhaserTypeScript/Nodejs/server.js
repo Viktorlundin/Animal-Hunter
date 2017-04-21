@@ -1,22 +1,3 @@
-//importera och skapa moduler
-//http & express, webserver
-//var express: any = require('express');
-//var app: any = express();
-//var server: any = require('http').createServer(app);
-//socket.io
-//var io: any = require('socket.io')(server);
-//path för att hitta filväg utan säkerhetsproblem för servern(för att hitta index.html i annan map)
-//var path = require('path');
-//Allt i denna mappen localhost:port/includes är public för den som besöker hemsidan,
-//där kan vi lägga jquery libary etc.
-//app.use(express.static(__dirname + '/../PhaserTypeScript/'));
-////Skickar hemsidan index.html när någon besöker hemsidan.
-//app.get('/', function (req, res, next)
-//{
-//    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
-//});
-//Lysnar på trafik på port 1337
-//socket.io server
 var SocketServer = (function () {
     function SocketServer() {
         this.express = require('express');
@@ -24,6 +5,8 @@ var SocketServer = (function () {
         this.server = require('http').createServer(this.app);
         this.io = require('socket.io')(this.server);
         this.path = require('path');
+        this.activeConnections = 0;
+        this.MongoClient = require('mongodb').MongoClient;
     }
     SocketServer.prototype.StartWebserver = function () {
         this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
@@ -33,38 +16,88 @@ var SocketServer = (function () {
         this.server.listen(1337);
         console.log("Server started");
     };
-    /*CLIENT SIDAN:
-    function movePlayer () {
-    socket.emit ('player move', {map: 4, coords: '0.0'});
- }
-
-    socket.on ('updatePlayer', function (msg) {
-  console.log ('A player moves on map ' + msg.map + ' on coords ' + msg.coords);
-    });
-*/
-    SocketServer.prototype.setEventHandlers = function () {
-        this.io.on("connection", function (client) {
-            console.log("New player has connected: " + client.id);
-            client.broadcast.emit('newPlayer', client.id);
-            client.on('playerMoved', function (data) {
-                client.broadcast.emit('updateCoordinates', { coordinates: data, player: client.id });
-            });
-            //client.on("move player", onMovePlayer);
-            //client.on("disconnect", onClientDisconnect);
-            //client.on("place bomb", onPlaceBomb);
-            //client.on("register map", onRegisterMap);
-            //client.on("start game on server", onStartGame);
-            //client.on("ready for round", onReadyForRound);
-            //client.on("powerup overlap", onPowerupOverlap);
-            //client.on("enter lobby", Lobby.onEnterLobby);
-            //client.on("host game", Lobby.onHostGame);
-            //client.on("select stage", Lobby.onStageSelect);
-            //client.on("enter pending game", Lobby.onEnterPendingGame);
-            //client.on("leave pending game", Lobby.onLeavePendingGame);
+    SocketServer.prototype.EventConnection = function (client) {
+        var _this = this;
+        console.log("New player has connected: " + client.id);
+        this.activeConnections++;
+        console.log("ActiveConnections: " + this.activeConnections);
+        client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
+        //Sätt lyssna funktioner för denna klient
+        client.on('playerMoved', function (data) { return _this.EventPlayerMoved(data, client); });
+        client.on('disconnect', function () { return _this.EventDisconnected(client); });
+        client.on('HowManyTotalConnections', function () { return _this.EventHowManyConnections(client); });
+        client.on('CanIRegister', function (msg) { return _this.EventCanIRegister(msg, client); });
+        client.on('CanILogin', function (msg) { return _this.EventCanILogin(msg, client); });
+    };
+    SocketServer.prototype.EventPlayerMoved = function (data, client) {
+        client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+    };
+    SocketServer.prototype.EventDisconnected = function (client) {
+        console.log('user disconnect');
+        this.activeConnections--;
+        client.broadcast.emit('user disconnected' + client.id);
+        console.log("ActiveConnections: " + this.activeConnections);
+    };
+    SocketServer.prototype.EventHowManyConnections = function (client) {
+        console.log('Total connections sent');
+        client.emit('TotalConnections', this.activeConnections);
+    };
+    SocketServer.prototype.EventCanIRegister = function (msg, client) {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) {
+                return console.dir(err);
+            }
+            var collection = db.collection('accounts');
+            var playerDoc = {
+                email: msg.email,
+                password: msg.password,
+                username: msg.username
+            };
+            collection.insert(playerDoc);
+            console.log("rEGISTERED!");
         });
     };
+    SocketServer.prototype.EventCanILogin = function (msg, client) {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) {
+                return console.dir(err);
+            }
+            console.log("DATA:" + msg.email + msg.password);
+            var collection = db.collection('accounts').findOne({
+                $and: [
+                    {
+                        email: msg.email
+                    },
+                    {
+                        password: msg.password
+                    }
+                ]
+            });
+            if (collection != null) {
+                console.log("Player logged in");
+            }
+            else
+                console.log("Failed login");
+        });
+    };
+    SocketServer.prototype.setEventHandlers = function () {
+        var _this = this;
+        this.io.on("connection", function (client) { return _this.EventConnection(client); });
+        //client.on("move player", onMovePlayer);
+        //client.on("disconnect", onClientDisconnect);
+        //client.on("place bomb", onPlaceBomb);
+        //client.on("register map", onRegisterMap);
+        //client.on("start game on server", onStartGame);
+        //client.on("ready for round", onReadyForRound);
+        //client.on("powerup overlap", onPowerupOverlap);
+        //client.on("enter lobby", Lobby.onEnterLobby);
+        //client.on("host game", Lobby.onHostGame);
+        //client.on("select stage", Lobby.onStageSelect);
+        //client.on("enter pending game", Lobby.onEnterPendingGame);
+        //client.on("leave pending game", Lobby.onLeavePendingGame);
+    };
     return SocketServer;
-})();
+}());
 var SS = new SocketServer();
 SS.setEventHandlers();
 SS.StartWebserver();
