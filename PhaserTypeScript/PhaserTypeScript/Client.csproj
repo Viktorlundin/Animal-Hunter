@@ -35,7 +35,7 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="States\app.ts" />
     <TypeScriptCompile Include="States\Boot.ts" />
     <TypeScriptCompile Include="States\Login.ts" />
     <TypeScriptCompile Include="States\Main.ts" />
