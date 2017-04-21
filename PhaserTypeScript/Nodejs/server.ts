@@ -8,17 +8,12 @@ class SocketServer
     io: any = require('socket.io')(this.server);
     path = require('path');
     activeConnections: number = 0;
-    db = require('mongodb').MongoClient;
+
+    MongoClient = require('mongodb').MongoClient;
+    
 
     constructor()
     {
-
-        // Connect to the db
-        this.db.connect("mongodb://localhost:27017/JungleHunter", function (err, db) {
-            if (!err) {
-                console.log("Connected to MongoDB");
-            }
-        });
 
     }
 
@@ -42,7 +37,7 @@ class SocketServer
         client.on('disconnect', () => this.EventDisconnected(client));
         client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
         client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
-        client.on('CanILogin', (msg) => this.EventCanIRegister(msg, client));
+        client.on('CanILogin', (msg) => this.EventCanILogin(msg, client));
     }
 
     EventPlayerMoved(data, client)
@@ -66,20 +61,47 @@ class SocketServer
 
     EventCanIRegister(msg, client)
     {
-        var collection = this.db.collection('accounts');
-        var newPlayerDoc =
-            {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) { return console.dir(err); }
+
+            var collection = db.collection('accounts');
+            var playerDoc = {
                 email: msg.email,
                 password: msg.password,
                 username: msg.username
-            }
+            };
+            collection.insert(playerDoc);
+            console.log("rEGISTERED!");
 
-        collection.insert(newPlayerDoc);
+        });
     }
 
     EventCanILogin(msg, client)
     {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) { return console.dir(err); }
+            console.log("DATA:" + msg.email + msg.password);
+            var collection = db.collection('accounts').findOne
+                (
+                {
+                    $and:
+                    [
+                        {
+                            email: msg.email
+                        },
+                        {
+                            password: msg.password
+                        }
+                    ]
+                }
+                );
+            if (collection != null) {
+                console.log("Player logged in");
+            }
+            else
+                console.log("Failed login");
 
+        });
     }
 
     
