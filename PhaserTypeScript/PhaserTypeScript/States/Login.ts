@@ -3,8 +3,9 @@
         background: Phaser.Sprite;
         loginbutton: Phaser.Button;
         registerbutton: Phaser.Button;
-
-
+        inputPassword: any;
+        inputName: any;
+        inputEmail: any;
 
         create() {
             console.log("Är i login menu nu.");
@@ -13,7 +14,7 @@
             this.registerbutton = this.game.add.button(this.game.world.centerX + 100, this.game.world.centerY, 'register', this.registernewPlayer, this);
             let plugin = new PhaserInput.Plugin(this.game, this.game.plugins);
             this.add.plugin(plugin);
-            var inputEmail = this.game.add.inputField(330, 195, {
+            this.inputEmail = this.game.add.inputField(330, 195, {
                 font: '18px Arial',
                 fill: '#212121',
                 fontWeight: 'bold',
@@ -25,7 +26,7 @@
                 placeHolder: 'Email',
                 type: PhaserInput.InputType.text
             });
-            var inputName = this.game.add.inputField(330, 90, {
+            this.inputName = this.game.add.inputField(330, 90, {
                 font: '18px Arial',
                 fill: '#212121',
                 fontWeight: 'bold',
@@ -37,7 +38,7 @@
                 placeHolder: 'Nickname',
                 type: PhaserInput.InputType.text
             });
-            var inputPassword = this.game.add.inputField(330, 300, {
+            this.inputPassword = this.game.add.inputField(330, 300, {
                 font: '18px Arial',
                 fill: '#212121',
                 fontWeight: 'bold',
@@ -53,10 +54,13 @@
         }
 
         registernewPlayer() {
-
+            Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
+            
         }
 
         login() {
+            console.log(this.inputPassword);
+            Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
             this.startGame();
         }
 
