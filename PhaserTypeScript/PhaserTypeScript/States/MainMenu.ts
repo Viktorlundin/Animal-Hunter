@@ -13,7 +13,9 @@ module JungleHunter {
             this.background.alpha = 0;
             this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
             this.startbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'Startgame', this.startGame, this)
-            
+
+            Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
+            Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
  
         }
 
