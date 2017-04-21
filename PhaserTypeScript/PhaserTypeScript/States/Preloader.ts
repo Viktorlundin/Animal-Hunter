@@ -8,6 +8,9 @@
             this.load.image('jungle', 'Jungle.png');
             this.load.image('ground', 'platform.png');
             this.load.image('titlepage', 'JungleHunterTitlescreen.png');
+            this.load.image('loginpage', 'loginbackground.png');
+            this.load.image('login', 'Login.png');
+            this.load.image('register', 'Register.png');
             this.load.image('baddie', 'baddie.png');
             this.load.image('bullet', 'bullet.png');
             this.load.image('Startgame', 'Startgame.png');
@@ -19,10 +22,10 @@
             console.log("i preloader");
             var tween = this.add.tween(this.loaderText).to({ alpha: 0 }, 1000,
                 Phaser.Easing.Linear.None, true);
-            tween.onComplete.add(this.startMainMenu, this);
+            tween.onComplete.add(this.startLogin, this);
         }
-        startMainMenu() {
-            this.game.state.start('MainMenu', true, false);
+        startLogin() {
+            this.game.state.start('Login', true, false);
         }
     }
 }
