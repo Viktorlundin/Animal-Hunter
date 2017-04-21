@@ -33,3 +33,9 @@ C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeS
 C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
 C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
 C:\Users\Erik Hällkvist\Source\Repos\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll.config
+C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll
+C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.pdb
+C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.csprojResolveAssemblyReference.cache
+C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.dll
+C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\obj\Debug\Client.pdb
