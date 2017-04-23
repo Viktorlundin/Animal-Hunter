@@ -6,13 +6,7 @@ var SocketServer = (function () {
         this.io = require('socket.io')(this.server);
         this.path = require('path');
         this.activeConnections = 0;
-        this.db = require('mongodb').MongoClient;
-        // Connect to the db
-        this.db.connect("mongodb://localhost:27017/JungleHunter", function (err, db) {
-            if (!err) {
-                console.log("Connected to MongoDB");
-            }
-        });
+        this.MongoClient = require('mongodb').MongoClient;
     }
     SocketServer.prototype.StartWebserver = function () {
         this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
@@ -33,7 +27,7 @@ var SocketServer = (function () {
         client.on('disconnect', function () { return _this.EventDisconnected(client); });
         client.on('HowManyTotalConnections', function () { return _this.EventHowManyConnections(client); });
         client.on('CanIRegister', function (msg) { return _this.EventCanIRegister(msg, client); });
-        client.on('CanILogin', function (msg) { return _this.EventCanIRegister(msg, client); });
+        client.on('CanILogin', function (msg) { return _this.EventCanILogin(msg, client); });
     };
     SocketServer.prototype.EventPlayerMoved = function (data, client) {
         client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
@@ -49,15 +43,42 @@ var SocketServer = (function () {
         client.emit('TotalConnections', this.activeConnections);
     };
     SocketServer.prototype.EventCanIRegister = function (msg, client) {
-        var collection = this.db.collection('accounts');
-        var newPlayerDoc = {
-            email: msg.email,
-            password: msg.password,
-            username: msg.username
-        };
-        collection.insert(newPlayerDoc);
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) {
+                return console.dir(err);
+            }
+            var collection = db.collection('accounts');
+            var playerDoc = {
+                email: msg.email,
+                password: msg.password,
+                username: msg.username
+            };
+            collection.insert(playerDoc);
+            console.log("rEGISTERED!");
+        });
     };
     SocketServer.prototype.EventCanILogin = function (msg, client) {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) {
+                return console.dir(err);
+            }
+            console.log("DATA:" + msg.email + msg.password);
+            var collection = db.collection('accounts').findOne({
+                $and: [
+                    {
+                        email: msg.email
+                    },
+                    {
+                        password: msg.password
+                    }
+                ]
+            });
+            if (collection != null) {
+                console.log("Player logged in");
+            }
+            else
+                console.log("Failed login");
+        });
     };
     SocketServer.prototype.setEventHandlers = function () {
         var _this = this;
