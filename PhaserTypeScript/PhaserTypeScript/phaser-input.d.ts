@@ -23,9 +23,9 @@ declare module PhaserInput {
         value: string;
         focus(): void;
         blur(): void;
-        readonly hasSelection: boolean;
-        readonly caretStart: number;
-        readonly caretEnd: number;
+        public hasSelection: boolean;
+        public caretStart: number;
+        public caretEnd: number;
         getCaretPosition(): number;
         setCaretPosition(pos: number): void;
     }
