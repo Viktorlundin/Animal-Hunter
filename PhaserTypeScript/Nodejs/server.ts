@@ -1,28 +1,4 @@
-﻿//importera och skapa moduler
-//http & express, webserver
-//var express: any = require('express');
-//var app: any = express();
-//var server: any = require('http').createServer(app);
-//socket.io
-//var io: any = require('socket.io')(server);
-
-//path för att hitta filväg utan säkerhetsproblem för servern(för att hitta index.html i annan map)
-//var path = require('path');
-
-
-//Allt i denna mappen localhost:port/includes är public för den som besöker hemsidan,
-//där kan vi lägga jquery libary etc.
-//app.use(express.static(__dirname + '/../PhaserTypeScript/'));
-
-////Skickar hemsidan index.html när någon besöker hemsidan.
-//app.get('/', function (req, res, next)
-//{
-//    res.sendFile(path.resolve(__dirname + '/../PhaserTypeScript/index.html'));
-//});
-
- //Lysnar på trafik på port 1337
-
-//socket.io server
+﻿
 
 class SocketServer
 {
@@ -31,9 +7,15 @@ class SocketServer
     server: any = require('http').createServer(this.app);
     io: any = require('socket.io')(this.server);
     path = require('path');
+    activeConnections: number = 0;
 
+    MongoClient = require('mongodb').MongoClient;
+    
 
-    constructor() { }
+    constructor()
+    {
+
+    }
 
     StartWebserver(): any {
         this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
@@ -44,32 +26,92 @@ class SocketServer
         console.log("Server started");
     }
 
-        /*CLIENT SIDAN:
-        function movePlayer () {
-        socket.emit ('player move', {map: 4, coords: '0.0'});
-     }
-    
-        socket.on ('updatePlayer', function (msg) {
-      console.log ('A player moves on map ' + msg.map + ' on coords ' + msg.coords);
+    EventConnection(client)
+    {
+        console.log("New player has connected: " + client.id);
+        this.activeConnections++;
+        console.log("ActiveConnections: " + this.activeConnections)
+        client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
+        //Sätt lyssna funktioner för denna klient
+        client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
+        client.on('disconnect', () => this.EventDisconnected(client));
+        client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
+        client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
+        client.on('CanILogin', (msg) => this.EventCanILogin(msg, client));
+    }
+
+    EventPlayerMoved(data, client)
+    {
+        client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+    }
+
+    EventDisconnected(client)
+    {
+        console.log('user disconnect');
+        this.activeConnections--;
+        client.broadcast.emit('user disconnected' + client.id);
+        console.log("ActiveConnections: " + this.activeConnections)
+    }
+
+    EventHowManyConnections(client)
+    {
+        console.log('Total connections sent');
+        client.emit('TotalConnections', this.activeConnections);
+    }
+
+    EventCanIRegister(msg, client)
+    {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) { return console.dir(err); }
+
+            var collection = db.collection('accounts');
+            var playerDoc = {
+                email: msg.email,
+                password: msg.password,
+                username: msg.username
+            };
+            collection.insert(playerDoc);
+            console.log("rEGISTERED!");
+
         });
-*/
+    }
+
+    EventCanILogin(msg, client)
+    {
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) { return console.dir(err); }
+            console.log("DATA:" + msg.email + msg.password);
+            var collection = db.collection('accounts').findOne
+                (
+                {
+                    $and:
+                    [
+                        {
+                            email: msg.email
+                        },
+                        {
+                            password: msg.password
+                        }
+                    ]
+                }
+                );
+            if (collection != null) {
+                console.log("Player logged in");
+            }
+            else
+                console.log("Failed login");
+
+        });
+    }
+
+    
+
     setEventHandlers(): any {
-        this.io.on("connection", function (client) {
-            console.log("New player has connected: " + client.id);
-            //client.emit('yourID', client.id);//Skickar aldrig?
-            client.broadcast.emit('newPlayer', client.id);
+        this.io.on("connection", (client) => this.EventConnection(client));
+            
 
-            client.on('playerMoved', function (data) {
-                console.log(client.id + "x:" + data.x + " y:" + data.y);
-                client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
-                client.emit('yourID', client.id);//TEST SÅ DET BLIR skickat
-                console.log("Player ID sent");
-            });
 
-            client.on('disconnect', function () {
-                console.log('user disconnect');
-                client.emit('user disconnected' + client.id);
-            });
+          
 
 
             //client.on("move player", onMovePlayer);
@@ -85,7 +127,7 @@ class SocketServer
             //client.on("select stage", Lobby.onStageSelect);
             //client.on("enter pending game", Lobby.onEnterPendingGame);
             //client.on("leave pending game", Lobby.onLeavePendingGame);
-        });
+
     }
 
 }
