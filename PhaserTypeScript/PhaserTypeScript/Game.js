@@ -1,28 +1,34 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var JungleHunter;
 (function (JungleHunter) {
     var Player = (function (_super) {
         __extends(Player, _super);
         function Player(game, x, y) {
-            _super.call(this, game, x, y, 'dude', 0);
-            this.x = null;
-            this.y = null;
-            this.lastXPosition = null;
-            this.lastYPosition = null;
-            this.cursors = this.game.input.keyboard.createCursorKeys();
-            this.x = x;
-            this.y = y;
-            this.animations.add('left', [0, 1, 2, 3], 10, true);
-            this.animations.add('right', [5, 6, 7, 8], 10, true);
-            this.game.physics.arcade.enable(this);
-            this.body.collideWorldBounds = true;
-            this.body.drag.y = 1000;
-            this.game.physics.arcade.enable(this);
-            this.game.add.existing(this);
+            var _this = _super.call(this, game, x, y, 'dude', 0) || this;
+            _this.x = null;
+            _this.y = null;
+            _this.lastXPosition = null;
+            _this.lastYPosition = null;
+            _this.cursors = _this.game.input.keyboard.createCursorKeys();
+            _this.x = x;
+            _this.y = y;
+            _this.animations.add('left', [0, 1, 2, 3], 10, true);
+            _this.animations.add('right', [5, 6, 7, 8], 10, true);
+            _this.game.physics.arcade.enable(_this);
+            _this.body.collideWorldBounds = true;
+            _this.body.drag.y = 1000;
+            _this.game.physics.arcade.enable(_this);
+            _this.game.add.existing(_this);
+            return _this;
         }
         ;
         return Player;
@@ -34,13 +40,112 @@ var JungleHunter;
     //import * as game from "./Game.ts";
     console.log("yoyoyo");
     window.onload = function () { var game = new JungleHunter.Main(); };
+    //function preload()
+    //{
+    //    game.load.image('jungle', 'Jungle.png');
+    //    game.load.image('ground', 'platform.png');
+    //    game.load.image('baddie', 'baddie.png');
+    //    game.load.image('bullet', 'bullet.png');
+    //    game.load.spritesheet('dude', 'dude.png', 32, 48);
+    //}
+    //var platforms;
+    //var player;
+    //var cursors;
+    //var mobs;
+    //var score = 0;
+    //var scoreText;
+    //var weapon;
+    //var firebutton;
+    //import Player = require("./Player");
+    //function create() {
+    //    game.physics.startSystem(Phaser.Physics.ARCADE);
+    //    game.add.sprite(0, 0, 'jungle');
+    //    platforms = game.add.group();
+    //    platforms.enableBody = true;
+    //    weapon = game.add.weapon(100, 'bullet');
+    //    weapon.fireRate = 20;
+    //    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    //    weapon.fireAngle = 180;
+    //    weapon.bulletAngleOffset = 0;
+    //    weapon.bulletSpeed = 400;
+    //    player = game.add.sprite(1000, game.world.height + 100, 'dude');
+    //    game.physics.arcade.enable(player);
+    //    weapon.trackSprite(player, 0, 14);
+    //    firebutton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    //    player.body.collideWorldBounds = true;
+    //    player.body.drag.y = 1000;
+    //    player.animations.add('left', [0, 1, 2, 3], 10, true);
+    //    player.animations.add('right', [5, 6, 7, 8], 10, true);
+    //    cursors = game.input.keyboard.createCursorKeys();
+    //    mobs = game.add.group();
+    //    mobs.enableBody = true;
+    //    mobs.physicsBodyType = Phaser.Physics.ARCADE;
+    //    for (var i = 0; i < 5; i++)
+    //    {
+    //        var mob = mobs.create(i * 5, Math.floor((Math.random() * 300) + 600), 'baddie');
+    //        mob.body.velocity.x = Math.floor((Math.random() * 10) +1);  
+    //        //mob.animations.add('baddie', [2, 3], 1, true);
+    //        //mob.play('baddie');
+    //    }
+    //    //var frameNames = Phaser.Animation.generateFrameNames('baddie', 0, 3);
+    //    //mobs.callAll('animations.add', 'animations', 'walk', frameNames, 30, true, false);
+    //    //mobs.callAll('play', null, 'walk');
+    //    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    //}
+    //function update()
+    //{
+    //    //  Collide the player and the stars with the platforms
+    //    var hitPlatform = game.physics.arcade.collide(player, platforms);
+    //    game.physics.arcade.collide(mobs, platforms);
+    //    game.physics.arcade.collide(weapon, mobs, function (bullet, mobs) { bullet.kill(); mobs.kill(); });
+    //    game.physics.arcade.overlap(mobs, weapon, collectStar, null, this);
+    //    if (firebutton.isDown) {
+    //        weapon.fire();
+    //    }
+    //    function collectStar(weapon, mobs)
+    //    {
+    //        // Removes the star from the screen
+    //        mobs.kill();
+    //        //  Add and update the score
+    //        score += 10;
+    //        scoreText.text = 'Score: ' + score;
+    //    }
+    //    //  Reset the players velocity (movement)
+    //    player.body.velocity.x = 0;
+    //    if (cursors.left.isDown) {
+    //        //  Move to the left
+    //        player.body.velocity.x = -150;
+    //        player.animations.play('left');
+    //    }
+    //    else if (cursors.right.isDown) {
+    //        //  Move to the right
+    //        player.body.velocity.x = 150;
+    //        player.animations.play('left');
+    //    }
+    //    else if (cursors.down.isDown)
+    //    {
+    //        player.body.velocity.y = 150;
+    //        player.animations.play('left');
+    //    }
+    //    else if (cursors.up.isDown) {
+    //        player.body.velocity.y = -150;
+    //        player.animations.play('left');
+    //    }
+    //    else {
+    //        //  Stand still
+    //        player.animations.stop();
+    //        player.frame = 0;
+    //    }
+    //  Allow the player to jump if they are touching the ground.
+    //Trolololololololo
+    //}
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
     var Boot = (function (_super) {
         __extends(Boot, _super);
         function Boot() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Boot.prototype.create = function () {
             console.log("works");
@@ -54,10 +159,71 @@ var JungleHunter;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
+    var Host = (function (_super) {
+        __extends(Host, _super);
+        function Host() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        Host.prototype.create = function () {
+            console.log("Är i  host menu nu.");
+            this.background = this.add.sprite(0, 0, 'Host');
+            //this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
+            this.startbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'Startgame', this.startGame, this);
+            this.backbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY - 50, 'BackButton', this.GoBack, this);
+            JungleHunter.Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
+            JungleHunter.Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
+        };
+        Host.prototype.startGame = function () {
+            this.game.state.start('RunGame', true, false);
+        };
+        Host.prototype.GoBack = function () {
+            this.game.state.start('MainMenu', true, false);
+        };
+        return Host;
+    }(Phaser.State));
+    JungleHunter.Host = Host;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
+    var Lobby = (function (_super) {
+        __extends(Lobby, _super);
+        function Lobby() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        Lobby.prototype.create = function () {
+            console.log("Är i  lobby menu nu.");
+            this.background = this.add.sprite(0, 0, 'Lobby');
+            //this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
+            this.startbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'Startgame', this.startGame, this);
+            this.backbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY - 50, 'BackButton', this.GoBack, this);
+            this.LobbyList = ["CDog", "Viktor", "Eriko", "Jonathang"];
+            this.CheckLobbyList();
+            JungleHunter.Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
+            JungleHunter.Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
+        };
+        Lobby.prototype.startGame = function () {
+            this.game.state.start('RunGame', true, false);
+        };
+        Lobby.prototype.GoBack = function () {
+            this.game.state.start('MainMenu', true, false);
+        };
+        Lobby.prototype.CheckLobbyList = function () {
+            for (var i = 0; i < this.LobbyList.length; i++) {
+                this.joinbutton = this.game.add.button(this.game.world.centerX - 70, this.game.world.centerY, 'EmptyButton', this.startGame, this);
+                var text = this.game.add.text(0, 0, this.LobbyList[i], { font: "16px Arial", fill: "#ffffff" });
+                this.joinbutton.addChild(text);
+            }
+        };
+        return Lobby;
+    }(Phaser.State));
+    JungleHunter.Lobby = Lobby;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
     var Login = (function (_super) {
         __extends(Login, _super);
         function Login() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Login.prototype.create = function () {
             console.log("Är i login menu nu.");
@@ -130,14 +296,17 @@ var JungleHunter;
     var Main = (function (_super) {
         __extends(Main, _super);
         function Main() {
-            _super.call(this, 1010, 790, Phaser.AUTO, 'content', null);
-            this.state.add('Boot', JungleHunter.Boot, false);
-            this.state.add('Preloader', JungleHunter.Preloader, false);
-            this.state.add('Login', JungleHunter.Login, false);
-            this.state.add('MainMenu', JungleHunter.MainMenu, false);
-            this.state.add('RunGame', JungleHunter.RunGame, false);
+            var _this = _super.call(this, 1010, 790, Phaser.AUTO, 'content', null) || this;
+            _this.state.add('Boot', JungleHunter.Boot, false);
+            _this.state.add('Preloader', JungleHunter.Preloader, false);
+            _this.state.add('Login', JungleHunter.Login, false);
+            _this.state.add('MainMenu', JungleHunter.MainMenu, false);
+            _this.state.add('RunGame', JungleHunter.RunGame, false);
+            _this.state.add('Lobby', JungleHunter.Lobby, false);
+            _this.state.add('Host', JungleHunter.Host, false);
             console.log("try start boot");
-            this.state.start('Boot');
+            _this.state.start('Boot');
+            return _this;
         }
         return Main;
     }(Phaser.Game));
@@ -152,19 +321,27 @@ var JungleHunter;
     var MainMenu = (function (_super) {
         __extends(MainMenu, _super);
         function MainMenu() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         MainMenu.prototype.create = function () {
             console.log("Är i main menu nu.");
             this.background = this.add.sprite(0, 0, 'titlepage');
             this.background.alpha = 0;
             this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
-            this.startbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'Startgame', this.startGame, this);
+            this.Hostbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY - 50, 'HostGameButton', this.HostGame, this);
+            this.Joinbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'JoinGameButton', this.JoinGame, this);
+            this.LogOutbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 50, 'LogOutButton', this.LogOut, this);
             JungleHunter.Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
             JungleHunter.Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
         };
-        MainMenu.prototype.startGame = function () {
-            this.game.state.start('RunGame', true, false);
+        MainMenu.prototype.HostGame = function () {
+            this.game.state.start('Host', true, false);
+        };
+        MainMenu.prototype.JoinGame = function () {
+            this.game.state.start('Lobby', true, false);
+        };
+        MainMenu.prototype.LogOut = function () {
+            this.game.state.start('Login', true, false);
         };
         return MainMenu;
     }(Phaser.State));
@@ -175,7 +352,7 @@ var JungleHunter;
     var Preloader = (function (_super) {
         __extends(Preloader, _super);
         function Preloader() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         Preloader.prototype.preload = function () {
             this.loaderText = this.game.add.text(this.world.centerX, 200, "Loading...", { font: "18px Arial", fill: "#A9A91111", align: "center" });
@@ -191,6 +368,13 @@ var JungleHunter;
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
             this.load.spritesheet('baddie', 'baddie.png', 15, 32);
+            this.load.image('Lobby', 'Lobby.jpg');
+            this.load.image('Host', 'Host.jpg');
+            this.load.image('HostGameButton', 'hostgame.png');
+            this.load.image('JoinGameButton', 'joingame.png');
+            this.load.image('LogOutButton', 'logout.png');
+            this.load.image('BackButton', 'goback.png');
+            this.load.image('EmptyButton', 'EmptyButton.png');
         };
         Preloader.prototype.create = function () {
             console.log("i preloader");
@@ -209,16 +393,17 @@ var JungleHunter;
     var RunGame = (function (_super) {
         __extends(RunGame, _super);
         function RunGame() {
-            _super.apply(this, arguments);
-            this.playerID = null;
-            this.playerList = new Array();
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.playerID = null;
+            _this.playerList = new Array();
+            return _this;
         }
         RunGame.prototype.create = function () {
             console.log("spelet är igång");
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
-            this.platforms = this.add.group();
-            this.platforms.enableBody = true;
+            //this.platforms = this.add.group();
+            //this.platforms.enableBody = true;
             for (var i = 1; i < 5; i++) {
                 this.playerList[i] = new JungleHunter.Player(this.game, 900, (100 + (i * 130)));
             }
