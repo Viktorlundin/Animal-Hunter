@@ -17,8 +17,7 @@ module JungleHunter {
             this.Joinbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'JoinGameButton', this.JoinGame, this)
             this.LogOutbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY+50, 'LogOutButton', this.LogOut, this)
 
-            Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
-            Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
+            
  
         }
 

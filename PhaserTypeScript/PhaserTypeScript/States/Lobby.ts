@@ -2,23 +2,20 @@
 module JungleHunter {
     export class Lobby extends Phaser.State {
         background: Phaser.Sprite;
-        startbutton: Phaser.Button;
         backbutton: Phaser.Button;
         LobbyList: string[];
         joinbutton: Phaser.Button;
-
+        text: any;
+        style: any;
 
         create() {
             console.log("Är i  lobby menu nu.");
             this.background = this.add.sprite(0, 0, 'Lobby');
-            //this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
-            this.startbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'Startgame', this.startGame, this)
-            this.backbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY - 50, 'BackButton', this.GoBack, this)
+            this.backbutton = this.game.add.button(this.game.world.centerX- 250, this.game.world.centerY, 'BackButton', this.GoBack, this)
             this.LobbyList = ["CDog", "Viktor", "Eriko", "Jonathang"];
+            this.style = {font: "32px Elephant", fill: "black"}
+            this.text = this.game.add.text(this.game.world.centerX-50, this.game.world.centerY-400, "Available games", this.style)
             this.CheckLobbyList();
-            Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
-            Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
-
         }
 
         startGame() {
@@ -30,10 +27,12 @@ module JungleHunter {
 
 
         CheckLobbyList() {
-            for (var i = 0; i < this.LobbyList.length; i++) {
-                this.joinbutton = this.game.add.button(this.game.world.centerX-70, this.game.world.centerY, 'EmptyButton', this.startGame, this);
-                var text = this.game.add.text(0, 0, this.LobbyList[i], { font: "16px Arial", fill: "#ffffff" });
+            for (var i = 0; i <= this.LobbyList.length - 1; i++) {
+                this.joinbutton = this.game.add.button(this.game.world.centerX, 35 + (i * 75), 'EmptyButton', this.startGame, this);
+                var text = this.game.add.text(0, 0, this.LobbyList[i] + "s game", { font: "14px Elephant", fill: "black", wordWrap: true, wordWrapWidth: this.joinbutton.width, align: "center" });
+                text.anchor.set(-0.20);
                 this.joinbutton.addChild(text);
+                
             }
         }
     }
