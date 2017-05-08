@@ -13,8 +13,8 @@
             console.log("spelet är igång");
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
-            this.platforms = this.add.group();
-            this.platforms.enableBody = true;
+            //this.platforms = this.add.group();
+            //this.platforms.enableBody = true;
 
             for (var i = 1; i <= Global.numberOfPlayers; i++)   // added Global.numberOfPlayers
             {

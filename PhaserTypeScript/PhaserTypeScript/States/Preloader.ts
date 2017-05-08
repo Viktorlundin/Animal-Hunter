@@ -16,7 +16,6 @@
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
             this.load.spritesheet('baddie', 'baddie.png', 15, 32);
-            this.load.spritesheet('checkbox', 'checkbox.png', 22, 27);
             this.load.image('Lobby', 'Lobby.jpg');
             this.load.image('Host', 'Host.jpg');
             this.load.image('HostGameButton', 'hostgame.png');
@@ -24,10 +23,6 @@
             this.load.image('LogOutButton', 'logout.png');
             this.load.image('BackButton', 'goback.png');
             this.load.image('EmptyButton', 'EmptyButton.png');
-            this.load.image('1pButton', '1p.png');
-            this.load.image('2pButton', '2p.png');
-            this.load.image('3pButton', '3p.png');
-            this.load.image('4pButton', '4p.png');
         }
 
         create() {
