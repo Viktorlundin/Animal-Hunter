@@ -20,6 +20,7 @@ module JungleHunter {
 
         startGame() {
             this.game.state.start('RunGame', true, false);
+            
         }
         GoBack() {
             this.game.state.start('MainMenu', true, false);
