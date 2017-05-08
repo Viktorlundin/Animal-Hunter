@@ -22,7 +22,6 @@ var SocketServer = (function () {
         console.log("New player has connected: " + client.id);
         this.activeConnections++;
         console.log("ActiveConnections: " + this.activeConnections);
-        client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
         //Sätt lyssna funktioner för denna klient
         client.on('playerMoved', function (data) { return _this.EventPlayerMoved(data, client); });
         client.on('disconnect', function () { return _this.EventDisconnected(client); });
@@ -54,7 +53,6 @@ var SocketServer = (function () {
     };
     SocketServer.prototype.EventPlayerMoved = function (data, client) {
         if (client['myRoom'] != null) {
-            console.log("my room is == " + client['myRoom']);
             var room = client['myRoom'];
             this.io.in(room).emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
         }
@@ -74,14 +72,33 @@ var SocketServer = (function () {
             if (err) {
                 return console.dir(err);
             }
-            var collection = db.collection('accounts');
-            var playerDoc = {
-                email: msg.email,
-                password: msg.password,
-                username: msg.username
-            };
-            collection.insert(playerDoc);
-            console.log("New account registered");
+            var collection = db.collection('accounts').findOne({
+                $and: [
+                    {
+                        email: msg.email
+                    },
+                    {
+                        password: msg.password
+                    }
+                ]
+            }, function (err, doc) {
+                if (err) {
+                    return console.dir(err);
+                }
+                if (doc) {
+                    console.log("Cannot register");
+                    client.emit('RegisterFailed', null);
+                }
+                else {
+                    var playerDoc = {
+                        email: msg.email,
+                        password: msg.password,
+                        username: msg.username
+                    };
+                    collection.insert(playerDoc);
+                    console.log("New account registered");
+                }
+            });
         });
     };
     SocketServer.prototype.EventCanILogin = function (msg, client) {
@@ -105,14 +122,14 @@ var SocketServer = (function () {
                 }
                 if (doc) {
                     console.log("Login success");
-                    console.log("server username found:" + doc.username);
+                    console.log("Username found:" + doc.username);
                     //Sänder logindata, kontoinfo
                     client.id = doc.email; //Sätter clientens id till dess email
                     client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
-                    //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
                 }
                 else {
                     console.log("Failed login");
+                    client.emit('loginfailed', null);
                 }
             });
         });

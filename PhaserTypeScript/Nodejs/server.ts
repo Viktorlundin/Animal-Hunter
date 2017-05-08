@@ -1,6 +1,7 @@
 ﻿
 
-class SocketServer {
+class SocketServer
+{
     express: any = require('express');
     app: any = this.express();
     server: any = require('http').createServer(this.app);
@@ -9,9 +10,10 @@ class SocketServer {
     activeConnections: number = 0;
     gameRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
+    
 
-
-    constructor() {
+    constructor()
+    {
 
     }
 
@@ -24,11 +26,11 @@ class SocketServer {
         console.log("Server started");
     }
 
-    EventConnection(client) {
+    EventConnection(client)
+    {
         console.log("New player has connected: " + client.id);
         this.activeConnections++;
         console.log("ActiveConnections: " + this.activeConnections)
-        client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
         //Sätt lyssna funktioner för denna klient
         client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
         client.on('disconnect', () => this.EventDisconnected(client));
@@ -40,69 +42,60 @@ class SocketServer {
         client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
     }
 
-    EventJoinRoom(data, client) {
+    EventJoinRoom(data, client)
+    {
         console.log("joining room:" + data.room);
         client.join(data.room);
         client['myRoom'] = data.room;
     }
 
-    EventCreateRoom(data, client) {
+    EventCreateRoom(data, client)
+    {
         console.log("rum: " + data.room);
         client.join(data.room);
         client['myRoom'] = data.room;
         this.gameRooms.push(data.room);
     }
 
-    EventRemoveGame(data, client) {
+    EventRemoveGame(data, client)
+    {
         //this.gameRooms = this.gameRooms.filter(function (e) { return e !== data.room }) //Tar bort ett rum från arrayen
     }
 
-    EventEmitGameRoomList(data, client) {
+    EventEmitGameRoomList(data, client)
+    {
         //this.gameRooms[0] = "hej"; this.gameRooms[1] = "bo";
         client.emit('GameRoomList', this.gameRooms);
         console.log("GameRoomList har skickats");
     }
 
-    EventPlayerMoved(data, client) {
+    EventPlayerMoved(data, client)
+    {
         if (client['myRoom'] != null) {
-            console.log("my room is == " + client['myRoom']);
             var room = client['myRoom'];
             this.io.in(room).emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
         }
     }
 
-    EventDisconnected(client) {
+    EventDisconnected(client)
+    {
         console.log('user disconnect');
         this.activeConnections--;//Denna är för alla spelare, inte bara rummets spelare
         client.broadcast.to(client['myRoom']).emit('user disconnected' + client.id);
         console.log("ActiveConnections: " + this.activeConnections)
     }
 
-    EventHowManyConnections(client) {
+    EventHowManyConnections(client)
+    {
         console.log('Total connections sent');
         client.emit('TotalConnections', this.io.sockets.adapter.rooms[client['myRoom']].length);
     }
 
-    EventCanIRegister(msg, client) {
+    EventCanIRegister(msg, client)
+    {
         this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
             if (err) { return console.dir(err); }
 
-            var collection = db.collection('accounts');
-            var playerDoc = {
-                email: msg.email,
-                password: msg.password,
-                username: msg.username
-            };
-            collection.insert(playerDoc);
-            console.log("New account registered");
-
-        });
-    }
-
-    EventCanILogin(msg, client) {
-        console.log("logintry");
-        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
-            if (err) { return console.dir(err); }
             var collection = db.collection('accounts').findOne
                 (
                 {
@@ -119,8 +112,47 @@ class SocketServer {
                 function (err, doc) {
                     if (err) { return console.dir(err); }
                     if (doc) {
+                        console.log("Cannot register");
+                        client.emit('RegisterFailed', null);
+                        
+                    }
+                    else {
+                        var playerDoc = {
+                            email: msg.email,
+                            password: msg.password,
+                            username: msg.username
+                        };
+                        collection.insert(playerDoc);
+                        console.log("New account registered");
+                    }
+                }
+                );
+        });
+    }
+
+    EventCanILogin(msg, client)
+    {
+        console.log("logintry");
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) { return console.dir(err); }
+            var collection = db.collection('accounts').findOne
+                (
+               {
+                    $and:
+                   [
+                        {
+                            email: msg.email
+                        },
+                        {
+                            password: msg.password
+                        }
+                   ]
+                },    
+                function (err, doc) {
+                    if (err) { return console.dir(err); }
+                    if (doc) {
                         console.log("Login success");
-                        console.log("server username found:" + doc.username);
+                        console.log("Username found:" + doc.username);
                         //Sänder logindata, kontoinfo
                         client.id = doc.email; //Sätter clientens id till dess email
                         client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
@@ -128,35 +160,36 @@ class SocketServer {
                     }
                     else {
                         console.log("Failed login");
+                        client.emit('loginfailed', null);
                     }
                 }
                 );
         });
     }
 
-
+    
 
     setEventHandlers(): any {
         this.io.on("connection", (client) => this.EventConnection(client));
+            
 
 
+          
 
 
+            //client.on("move player", onMovePlayer);
+            //client.on("disconnect", onClientDisconnect);
+            //client.on("place bomb", onPlaceBomb);
+            //client.on("register map", onRegisterMap);
+            //client.on("start game on server", onStartGame);
+            //client.on("ready for round", onReadyForRound);
+            //client.on("powerup overlap", onPowerupOverlap);
 
-
-        //client.on("move player", onMovePlayer);
-        //client.on("disconnect", onClientDisconnect);
-        //client.on("place bomb", onPlaceBomb);
-        //client.on("register map", onRegisterMap);
-        //client.on("start game on server", onStartGame);
-        //client.on("ready for round", onReadyForRound);
-        //client.on("powerup overlap", onPowerupOverlap);
-
-        //client.on("enter lobby", Lobby.onEnterLobby);
-        //client.on("host game", Lobby.onHostGame);
-        //client.on("select stage", Lobby.onStageSelect);
-        //client.on("enter pending game", Lobby.onEnterPendingGame);
-        //client.on("leave pending game", Lobby.onLeavePendingGame);
+            //client.on("enter lobby", Lobby.onEnterLobby);
+            //client.on("host game", Lobby.onHostGame);
+            //client.on("select stage", Lobby.onStageSelect);
+            //client.on("enter pending game", Lobby.onEnterPendingGame);
+            //client.on("leave pending game", Lobby.onLeavePendingGame);
 
     }
 
