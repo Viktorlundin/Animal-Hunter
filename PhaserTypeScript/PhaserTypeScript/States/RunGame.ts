@@ -1,39 +1,34 @@
-﻿module JungleHunter
-{
-    export class RunGame extends Phaser.State
-    {
+﻿module JungleHunter {
+    export class RunGame extends Phaser.State {
         background: Phaser.Sprite;
         music: Phaser.Sound;
         platforms: Phaser.Group;
         playerID: any = null;
         public playerList = new Array();
 
-        create()
-        {
+        create() {
             console.log("spelet är igång");
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
-            //this.platforms = this.add.group();
-            //this.platforms.enableBody = true;
+            this.platforms = this.add.group();
+            this.platforms.enableBody = true;
 
-            for (var i = 1; i < 5; i++)
+            for (var i = 1; i <= Global.numberOfPlayers; i++)   // added Global.numberOfPlayers
             {
-                this.playerList[i] = new Player(this.game, 900, (100+(i*130)));
+                this.playerList[i] = new Player(this.game, 900, (100 + (i * 130)));
             }
             this.setEventHandlers();
-            
+            console.log("AKTIVT SPLERUM=== " + Global.prototype.PlayerData.activeGameRoom);
         }
 
-        update()
-        {
-            if (this.playerID != null)
-            {
-                this.Movement(this.playerList[this.playerID]);
+        update() {
+            console.log("Player ID:" + this.playerID);
+            if (this.playerID != null) {
+                this.Movement(this.playerList[this.playerID]); //Errror här men nu fixad?
             }
         }
 
-        Movement(player: Player)
-        {
+        Movement(player: Player) {
             player.body.velocity.x = 0;
             if (player.cursors.left.isDown) {
                 player.body.velocity.x = -150;
@@ -58,18 +53,16 @@
             this.BroadCastPlayerCoordinates(player);
         }
 
-        EventSetMyPlayerID(data)
-        {
+        EventSetMyPlayerID(data) {
             this.playerID = data;
         }
 
-        EventNewPlayer(data)
-        {
+        EventNewPlayer(data) {
 
         }
 
-        EventUpdateCoordinates(data)
-        {
+        EventUpdateCoordinates(data) {
+            console.log("coords from player recived n updated, cordS: " + data);
             var id, x, y;
             id = data.player;
             x = data.x;
@@ -80,19 +73,17 @@
 
         BroadCastPlayerCoordinates(player: Player) {
 
-            if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition)))
-            { 
+            if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition))) {
                 var x = player.body.position.x;
                 var y = player.body.position.y;
-                Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID });
+                Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
                 console.log("coords sent");
             }
             player.lastXPosition = player.x;
             player.lastYPosition = player.y;
         }
 
-        setEventHandlers()
-        {
+        setEventHandlers() {
             console.log("event handler set");
             Global.socket.on('TotalConnections', (data) => this.EventSetMyPlayerID(data));
             Global.socket.on('newPlayer', (data) => this.EventNewPlayer(data));

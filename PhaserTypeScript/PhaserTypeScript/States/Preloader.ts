@@ -23,6 +23,10 @@
             this.load.image('LogOutButton', 'logout.png');
             this.load.image('BackButton', 'goback.png');
             this.load.image('EmptyButton', 'EmptyButton.png');
+            this.load.image('1pButton', '1p.png');
+            this.load.image('2pButton', '2p.png');
+            this.load.image('3pButton', '3p.png');
+            this.load.image('4pButton', '4p.png');
         }
 
         create() {

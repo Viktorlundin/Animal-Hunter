@@ -1,19 +1,17 @@
 ﻿
 
-class SocketServer
-{
+class SocketServer {
     express: any = require('express');
     app: any = this.express();
     server: any = require('http').createServer(this.app);
     io: any = require('socket.io')(this.server);
     path = require('path');
     activeConnections: number = 0;
-
+    gameRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
-    
 
-    constructor()
-    {
+
+    constructor() {
 
     }
 
@@ -26,8 +24,7 @@ class SocketServer
         console.log("Server started");
     }
 
-    EventConnection(client)
-    {
+    EventConnection(client) {
         console.log("New player has connected: " + client.id);
         this.activeConnections++;
         console.log("ActiveConnections: " + this.activeConnections)
@@ -38,29 +35,55 @@ class SocketServer
         client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
         client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
         client.on('CanILogin', (msg) => this.EventCanILogin(msg, client));
+        client.on('joinRoom', (msg) => this.EventJoinRoom(msg, client));
+        client.on('createRoom', (msg) => this.EventCreateRoom(msg, client));
+        client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
     }
 
-    EventPlayerMoved(data, client)
-    {
-        client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+    EventJoinRoom(data, client) {
+        console.log("joining room:" + data.room);
+        client.join(data.room);
+        client['myRoom'] = data.room;
     }
 
-    EventDisconnected(client)
-    {
+    EventCreateRoom(data, client) {
+        console.log("rum: " + data.room);
+        client.join(data.room);
+        client['myRoom'] = data.room;
+        this.gameRooms.push(data.room);
+    }
+
+    EventRemoveGame(data, client) {
+        //this.gameRooms = this.gameRooms.filter(function (e) { return e !== data.room }) //Tar bort ett rum från arrayen
+    }
+
+    EventEmitGameRoomList(data, client) {
+        //this.gameRooms[0] = "hej"; this.gameRooms[1] = "bo";
+        client.emit('GameRoomList', this.gameRooms);
+        console.log("GameRoomList har skickats");
+    }
+
+    EventPlayerMoved(data, client) {
+        if (client['myRoom'] != null) {
+            console.log("my room is == " + client['myRoom']);
+            var room = client['myRoom'];
+            this.io.in(room).emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+        }
+    }
+
+    EventDisconnected(client) {
         console.log('user disconnect');
-        this.activeConnections--;
-        client.broadcast.emit('user disconnected' + client.id);
+        this.activeConnections--;//Denna är för alla spelare, inte bara rummets spelare
+        client.broadcast.to(client['myRoom']).emit('user disconnected' + client.id);
         console.log("ActiveConnections: " + this.activeConnections)
     }
 
-    EventHowManyConnections(client)
-    {
+    EventHowManyConnections(client) {
         console.log('Total connections sent');
-        client.emit('TotalConnections', this.activeConnections);
+        client.emit('TotalConnections', this.io.sockets.adapter.rooms[client['myRoom']].length);
     }
 
-    EventCanIRegister(msg, client)
-    {
+    EventCanIRegister(msg, client) {
         this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
             if (err) { return console.dir(err); }
 
@@ -71,16 +94,15 @@ class SocketServer
                 username: msg.username
             };
             collection.insert(playerDoc);
-            console.log("rEGISTERED!");
+            console.log("New account registered");
 
         });
     }
 
-    EventCanILogin(msg, client)
-    {
+    EventCanILogin(msg, client) {
+        console.log("logintry");
         this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
             if (err) { return console.dir(err); }
-            console.log("DATA:" + msg.email + msg.password);
             var collection = db.collection('accounts').findOne
                 (
                 {
@@ -93,40 +115,48 @@ class SocketServer
                             password: msg.password
                         }
                     ]
+                },
+                function (err, doc) {
+                    if (err) { return console.dir(err); }
+                    if (doc) {
+                        console.log("Login success");
+                        console.log("server username found:" + doc.username);
+                        //Sänder logindata, kontoinfo
+                        client.id = doc.email; //Sätter clientens id till dess email
+                        client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
+                        //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
+                    }
+                    else {
+                        console.log("Failed login");
+                    }
                 }
                 );
-            if (collection != null) {
-                console.log("Player logged in");
-            }
-            else
-                console.log("Failed login");
-
         });
     }
 
-    
+
 
     setEventHandlers(): any {
         this.io.on("connection", (client) => this.EventConnection(client));
-            
 
 
-          
 
 
-            //client.on("move player", onMovePlayer);
-            //client.on("disconnect", onClientDisconnect);
-            //client.on("place bomb", onPlaceBomb);
-            //client.on("register map", onRegisterMap);
-            //client.on("start game on server", onStartGame);
-            //client.on("ready for round", onReadyForRound);
-            //client.on("powerup overlap", onPowerupOverlap);
 
-            //client.on("enter lobby", Lobby.onEnterLobby);
-            //client.on("host game", Lobby.onHostGame);
-            //client.on("select stage", Lobby.onStageSelect);
-            //client.on("enter pending game", Lobby.onEnterPendingGame);
-            //client.on("leave pending game", Lobby.onLeavePendingGame);
+
+        //client.on("move player", onMovePlayer);
+        //client.on("disconnect", onClientDisconnect);
+        //client.on("place bomb", onPlaceBomb);
+        //client.on("register map", onRegisterMap);
+        //client.on("start game on server", onStartGame);
+        //client.on("ready for round", onReadyForRound);
+        //client.on("powerup overlap", onPowerupOverlap);
+
+        //client.on("enter lobby", Lobby.onEnterLobby);
+        //client.on("host game", Lobby.onHostGame);
+        //client.on("select stage", Lobby.onStageSelect);
+        //client.on("enter pending game", Lobby.onEnterPendingGame);
+        //client.on("leave pending game", Lobby.onLeavePendingGame);
 
     }
 
@@ -149,13 +179,13 @@ SS.StartWebserver();
 //socket.broadcast.emit('message', "this is a test");
 
 //// sending to all clients in 'game' room(channel) except sender
-//socket.broadcast.to('game').emit('message', 'nice game');
+//socket.broadcast.to('game').emit('message', 'nice game'); <---------------------
 
 //// sending to all clients in 'game' room(channel), include sender
-//io.in('game').emit('message', 'cool game');
+//io.in('game').emit('message', 'cool game'); <----------------------------------
 
 //// sending to sender client, only if they are in 'game' room(channel)
-//socket.to('game').emit('message', 'enjoy the game');
+//socket.to('game').emit('message', 'enjoy the game');  <------------------------
 
 //// sending to all clients in namespace 'myNamespace', include sender
 //io.of('myNamespace').emit('message', 'gg');

@@ -4,6 +4,8 @@ module JungleHunter {
     export class Global {
         static socket: any;
         socket = null;
+        PlayerData = null;
+        static numberOfPlayers: number;
     }
 
     export class Main extends Phaser.Game {
