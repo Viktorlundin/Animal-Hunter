@@ -35,8 +35,10 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="mob.ts" />
     <TypeScriptCompile Include="States\app.ts" />
     <TypeScriptCompile Include="States\Boot.ts" />
+    <TypeScriptCompile Include="States\GameOver.ts" />
     <TypeScriptCompile Include="States\Host.ts" />
     <TypeScriptCompile Include="States\Lobby.ts" />
     <TypeScriptCompile Include="States\Login.ts" />

@@ -7,6 +7,7 @@
             this.loaderText.anchor.setTo(0.5);
             this.load.image('jungle', 'Jungle.png');
             this.load.image('ground', 'platform.png');
+            this.load.image('defeat', 'defeat.png');
             this.load.image('titlepage', 'JungleHunterTitlescreen.png');
             this.load.image('loginpage', 'loginbackground.png');
             this.load.image('login', 'Login.png');

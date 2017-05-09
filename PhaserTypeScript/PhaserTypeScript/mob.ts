@@ -14,7 +14,7 @@
             this.animations.add('right', [2, 3], 10, true);
             this.game.physics.arcade.enable(this);
             this.body.collideWorldBounds = true;
-            this.body.velocity.x = 100; 
+            this.body.velocity.x = 100;
             this.game.physics.arcade.enable(this);
             this.game.add.existing(this);
             this.animations.play('right');

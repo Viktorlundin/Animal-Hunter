@@ -79,7 +79,7 @@
 
         }
 
-        setCookie(cname, cvalue, exdays) {
+         public setCookie(cname, cvalue, exdays) {
             var d = new Date();
             d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
             var expires = "expires=" + d.toUTCString();
@@ -180,7 +180,8 @@
         }
 
         startGame() {
-            this.game.state.start('MainMenu', true, false);
+            this.state.states['MainMenu'].playername = this.inputName.value;
+            this.game.state.start('MainMenu', true, false, this.inputName);
         }
     }
 }

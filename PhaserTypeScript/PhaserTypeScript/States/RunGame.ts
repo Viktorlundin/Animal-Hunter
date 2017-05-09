@@ -8,10 +8,11 @@
         playerID: any = null;
         public playerList = new Array();
         public mobsList = new Array();
+        gameover: boolean = false;
 
         create()
         {
-            console.log("spelet är igång");
+            
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
             //this.platforms = this.add.group();
@@ -25,7 +26,7 @@
             for (var i = 1; i < 5; i++) {
                 this.mobsList[i] = new Mobs(this.game, -900, (100 + (i * 130)));
             }
-
+            this.time.events.add(Phaser.Timer.SECOND * 4, this.setGameOver, this);
             this.setEventHandlers();
             console.log("AKTIVT SPELRUM=== " + Global.prototype.PlayerData.activeGameRoom);
         }
@@ -36,13 +37,18 @@
             {
                 this.Movement(this.playerList[this.playerID]); //Errror här men nu fixad?
             }
-            this.MovementMobs(this.mobsList[1]);
-            
+
+            if (this.gameover)
+            {
+                this.game.state.start('GameOver', true, false);
+            }
+   
         }
 
-        MovementMobs(mobs: Mobs) {
-            this.BroadCastMobsCoordinates(mobs);
-            console.log("Broadcasting mobs movement");
+
+        setGameOver()
+        {
+            this.gameover = true
         }
 
         Movement(player: Player)
@@ -76,8 +82,6 @@
             this.playerID = data;
         }
 
-
-
         EventUpdateCoordinates(data)
         {
             console.log("coords from player recived n updated, cordS:" + data);
@@ -99,17 +103,6 @@
         }
 
 
-        BroadCastMobsCoordinates(mobs : Mobs) {
-
-            if (!((mobs.x == mobs.lastXPosition) && (mobs.y == mobs.lastYPosition))) {
-                var x = mobs.body.position.x;
-                var y = mobs.body.position.y;
-                Global.socket.emit('mobsMoved', { x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
-            }
-            mobs.lastXPosition = mobs.x;
-            mobs.lastYPosition = mobs.y;
-        }
-
         BroadCastPlayerCoordinates(player: Player) {
 
             if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition)))
@@ -127,7 +120,6 @@
         {
             Global.socket.on('TotalConnections', (data) => this.EventSetMyPlayerID(data));
             Global.socket.on('updateCoordinates', (data) => this.EventUpdateCoordinates(data));
-            Global.socket.on('updateCoordinatesforMobs', (data) => this.EventUpdateCoordinatesMobs(data));
             Global.socket.emit('HowManyTotalConnections', null);
         }
 
