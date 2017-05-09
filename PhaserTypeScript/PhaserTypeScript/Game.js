@@ -5,6 +5,31 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var JungleHunter;
 (function (JungleHunter) {
+    var Mobs = (function (_super) {
+        __extends(Mobs, _super);
+        function Mobs(game, x, y) {
+            _super.call(this, game, x, y, 'baddie', 0);
+            this.x = null;
+            this.y = null;
+            this.lastXPosition = null;
+            this.lastYPosition = null;
+            this.x = x;
+            this.y = y;
+            this.animations.add('right', [2, 3], 10, true);
+            this.game.physics.arcade.enable(this);
+            this.body.collideWorldBounds = true;
+            this.body.velocity.x = 100;
+            this.game.physics.arcade.enable(this);
+            this.game.add.existing(this);
+            this.animations.play('right');
+        }
+        ;
+        return Mobs;
+    }(Phaser.Sprite));
+    JungleHunter.Mobs = Mobs;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
     //import * as game from "./Game.ts";
     console.log("yoyoyo");
     window.onload = function () { var game = new JungleHunter.Main(); };
@@ -401,7 +426,7 @@ var JungleHunter;
             this.load.image('bullet', 'bullet.png');
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
-            this.load.spritesheet('baddie', 'baddie.png', 15, 32);
+            this.load.spritesheet('baddie', 'baddie.png', 32, 32);
             this.load.spritesheet('checkbox', 'checkbox.png', 21, 27);
             this.load.image('Lobby', 'Lobby.jpg');
             this.load.image('Host', 'Host.jpg');
@@ -435,6 +460,7 @@ var JungleHunter;
             _super.apply(this, arguments);
             this.playerID = null;
             this.playerList = new Array();
+            this.mobsList = new Array();
         }
         RunGame.prototype.create = function () {
             console.log("spelet är igång");
@@ -445,13 +471,21 @@ var JungleHunter;
             for (var i = 1; i <= JungleHunter.Global.numberOfPlayers; i++) {
                 this.playerList[i] = new JungleHunter.Player(this.game, 900, (100 + (i * 130)));
             }
+            for (var i = 1; i < 5; i++) {
+                this.mobsList[i] = new JungleHunter.Mobs(this.game, -900, (100 + (i * 130)));
+            }
             this.setEventHandlers();
-            console.log("AKTIVT SPLERUM=== " + JungleHunter.Global.prototype.PlayerData.activeGameRoom);
+            console.log("AKTIVT SPELRUM=== " + JungleHunter.Global.prototype.PlayerData.activeGameRoom);
         };
         RunGame.prototype.update = function () {
             if (this.playerID != null) {
                 this.Movement(this.playerList[this.playerID]); //Errror här men nu fixad?
             }
+            this.MovementMobs(this.mobsList[1]);
+        };
+        RunGame.prototype.MovementMobs = function (mobs) {
+            this.BroadCastMobsCoordinates(mobs);
+            console.log("Broadcasting mobs movement");
         };
         RunGame.prototype.Movement = function (player) {
             player.body.velocity.x = 0;
@@ -489,21 +523,37 @@ var JungleHunter;
             this.playerList[id].x = x;
             this.playerList[id].y = y;
         };
+        RunGame.prototype.EventUpdateCoordinatesMobs = function (data) {
+            var id, x, y;
+            id = data.mobs;
+            x = data.x;
+            y = data.y;
+            this.mobsList[id].x = x;
+            this.mobsList[id].y = y;
+        };
+        RunGame.prototype.BroadCastMobsCoordinates = function (mobs) {
+            if (!((mobs.x == mobs.lastXPosition) && (mobs.y == mobs.lastYPosition))) {
+                var x = mobs.body.position.x;
+                var y = mobs.body.position.y;
+                JungleHunter.Global.socket.emit('mobsMoved', { x: x, y: y, player: this.playerID, gameRoom: JungleHunter.Global.prototype.PlayerData.activeGameRoom });
+            }
+            mobs.lastXPosition = mobs.x;
+            mobs.lastYPosition = mobs.y;
+        };
         RunGame.prototype.BroadCastPlayerCoordinates = function (player) {
             if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition))) {
                 var x = player.body.position.x;
                 var y = player.body.position.y;
                 JungleHunter.Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID, gameRoom: JungleHunter.Global.prototype.PlayerData.activeGameRoom });
-                console.log("coords sent");
             }
             player.lastXPosition = player.x;
             player.lastYPosition = player.y;
         };
         RunGame.prototype.setEventHandlers = function () {
             var _this = this;
-            console.log("event handler set");
             JungleHunter.Global.socket.on('TotalConnections', function (data) { return _this.EventSetMyPlayerID(data); });
             JungleHunter.Global.socket.on('updateCoordinates', function (data) { return _this.EventUpdateCoordinates(data); });
+            JungleHunter.Global.socket.on('updateCoordinatesforMobs', function (data) { return _this.EventUpdateCoordinatesMobs(data); });
             JungleHunter.Global.socket.emit('HowManyTotalConnections', null);
         };
         return RunGame;

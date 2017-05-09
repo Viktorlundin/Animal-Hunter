@@ -7,6 +7,7 @@
         platforms: Phaser.Group;
         playerID: any = null;
         public playerList = new Array();
+        public mobsList = new Array();
 
         create()
         {
@@ -20,8 +21,13 @@
             {
                 this.playerList[i] = new Player(this.game, 900, (100 + (i * 130)));
             }
+
+            for (var i = 1; i < 5; i++) {
+                this.mobsList[i] = new Mobs(this.game, -900, (100 + (i * 130)));
+            }
+
             this.setEventHandlers();
-            console.log("AKTIVT SPLERUM=== " + Global.prototype.PlayerData.activeGameRoom);
+            console.log("AKTIVT SPELRUM=== " + Global.prototype.PlayerData.activeGameRoom);
         }
 
         update()
@@ -30,6 +36,13 @@
             {
                 this.Movement(this.playerList[this.playerID]); //Errror här men nu fixad?
             }
+            this.MovementMobs(this.mobsList[1]);
+            
+        }
+
+        MovementMobs(mobs: Mobs) {
+            this.BroadCastMobsCoordinates(mobs);
+            console.log("Broadcasting mobs movement");
         }
 
         Movement(player: Player)
@@ -76,6 +89,27 @@
             this.playerList[id].y = y;
         }
 
+        EventUpdateCoordinatesMobs(data) {
+            var id, x, y;
+            id = data.mobs;
+            x = data.x;
+            y = data.y;
+            this.mobsList[id].x = x;
+            this.mobsList[id].y = y;
+        }
+
+
+        BroadCastMobsCoordinates(mobs : Mobs) {
+
+            if (!((mobs.x == mobs.lastXPosition) && (mobs.y == mobs.lastYPosition))) {
+                var x = mobs.body.position.x;
+                var y = mobs.body.position.y;
+                Global.socket.emit('mobsMoved', { x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
+            }
+            mobs.lastXPosition = mobs.x;
+            mobs.lastYPosition = mobs.y;
+        }
+
         BroadCastPlayerCoordinates(player: Player) {
 
             if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition)))
@@ -83,7 +117,7 @@
                 var x = player.body.position.x;
                 var y = player.body.position.y;
                 Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
-                console.log("coords sent");
+                
             }
             player.lastXPosition = player.x;
             player.lastYPosition = player.y;
@@ -91,10 +125,9 @@
 
         setEventHandlers()
         {
-            console.log("event handler set");
-
             Global.socket.on('TotalConnections', (data) => this.EventSetMyPlayerID(data));
             Global.socket.on('updateCoordinates', (data) => this.EventUpdateCoordinates(data));
+            Global.socket.on('updateCoordinatesforMobs', (data) => this.EventUpdateCoordinatesMobs(data));
             Global.socket.emit('HowManyTotalConnections', null);
         }
 
