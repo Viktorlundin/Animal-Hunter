@@ -75,7 +75,8 @@
                 placeHolder: 'Password',
                 type: PhaserInput.InputType.password
             });
-            this.inputEmail.setText(this.checkCookie());
+            this.checkCookie();
+            
 
         }
 
@@ -103,16 +104,18 @@
 
         checkCookie() {
             var useremail = this.getCookie("userEmail");
+            var username = this.getCookie("userName");
             if (useremail != null) {
-                this.inputEmail.value = useremail;
+                this.inputEmail.setText(useremail);
+                this.inputName.setText(username);
                 this.checkbox.frame = 1;
             }
             else {
                 if (useremail != "" && useremail != null) {
                     this.setCookie("userEmail", useremail, 365);
+                    this.setCookie("userName", username, 365);
                 }
             }
-            return useremail;
         }
 
         EventLoginAccepted(accountData)
@@ -120,6 +123,7 @@
 
             if (this.checkbox.frame == 1) {
                 this.setCookie("userEmail", this.inputEmail.value, 365);
+                this.setCookie("userName", this.inputName.value, 365);
             }
             if (accountData)
             {

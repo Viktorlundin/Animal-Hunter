@@ -10,11 +10,13 @@ class SocketServer
     activeConnections: number = 0;
     gameRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
+    alreadyloggedin: any = 0;
+    TotalConnectionList: string[];
     
 
     constructor()
     {
-
+        
     }
 
     StartWebserver(): any {
@@ -130,6 +132,14 @@ class SocketServer
         });
     }
 
+    CheckTotalConnections(email) {
+        for (var x = 0; this.TotalConnectionList.length < x; x++) {
+            if (this.TotalConnectionList[x] == email) {
+                this.alreadyloggedin = 1;
+            }
+        }
+    }
+
     EventCanILogin(msg, client)
     {
         console.log("logintry");
@@ -150,11 +160,21 @@ class SocketServer
                 },    
                 function (err, doc) {
                     if (err) { return console.dir(err); }
-                    if (doc) {
+
+
+                    this.CheckTotalConnections(doc.email);
+
+                    if(this.alreadyloggedin == 1){
+                        this.alreadyloggedin = 0;
+                        console.log("Failed login");
+                        client.emit('loginfailed', null);
+                    }
+                    else if (doc) {
                         console.log("Login success");
                         console.log("Username found:" + doc.username);
                         //Sänder logindata, kontoinfo
                         client.id = doc.email; //Sätter clientens id till dess email
+                        this.TotalconnectionsList.push(doc.email);
                         client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
                         //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
                     }
@@ -166,6 +186,7 @@ class SocketServer
                 );
         });
     }
+
 
     
 

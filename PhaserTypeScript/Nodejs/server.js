@@ -8,6 +8,7 @@ var SocketServer = (function () {
         this.activeConnections = 0;
         this.gameRooms = new Array();
         this.MongoClient = require('mongodb').MongoClient;
+        this.alreadyloggedin = 0;
     }
     SocketServer.prototype.StartWebserver = function () {
         this.app.use(this.express.static(__dirname + '/../PhaserTypeScript/'));
@@ -101,6 +102,13 @@ var SocketServer = (function () {
             });
         });
     };
+    SocketServer.prototype.CheckTotalConnections = function (email) {
+        for (var x = 0; this.TotalConnectionList.length < x; x++) {
+            if (this.TotalConnectionList[x] == email) {
+                this.alreadyloggedin = 1;
+            }
+        }
+    };
     SocketServer.prototype.EventCanILogin = function (msg, client) {
         console.log("logintry");
         this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
@@ -120,11 +128,18 @@ var SocketServer = (function () {
                 if (err) {
                     return console.dir(err);
                 }
-                if (doc) {
+                this.CheckTotalConnections(doc.email);
+                if (this.alreadyloggedin == 1) {
+                    this.alreadyloggedin = 0;
+                    console.log("Failed login");
+                    client.emit('loginfailed', null);
+                }
+                else if (doc) {
                     console.log("Login success");
                     console.log("Username found:" + doc.username);
                     //Sänder logindata, kontoinfo
                     client.id = doc.email; //Sätter clientens id till dess email
+                    this.TotalconnectionsList.push(doc.email);
                     client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
                 }
                 else {

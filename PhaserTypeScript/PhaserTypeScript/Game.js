@@ -278,7 +278,7 @@ var JungleHunter;
                 placeHolder: 'Password',
                 type: PhaserInput.InputType.password
             });
-            this.inputEmail.setText(this.checkCookie());
+            this.checkCookie();
         };
         Login.prototype.setCookie = function (cname, cvalue, exdays) {
             var d = new Date();
@@ -302,20 +302,23 @@ var JungleHunter;
         };
         Login.prototype.checkCookie = function () {
             var useremail = this.getCookie("userEmail");
+            var username = this.getCookie("userName");
             if (useremail != null) {
-                this.inputEmail.value = useremail;
+                this.inputEmail.setText(useremail);
+                this.inputName.setText(username);
                 this.checkbox.frame = 1;
             }
             else {
                 if (useremail != "" && useremail != null) {
                     this.setCookie("userEmail", useremail, 365);
+                    this.setCookie("userName", username, 365);
                 }
             }
-            return useremail;
         };
         Login.prototype.EventLoginAccepted = function (accountData) {
             if (this.checkbox.frame == 1) {
                 this.setCookie("userEmail", this.inputEmail.value, 365);
+                this.setCookie("userName", this.inputName.value, 365);
             }
             if (accountData) {
                 //Sätt in all accountdata i en klass obj och skicka med den i startGame(klass obj)
