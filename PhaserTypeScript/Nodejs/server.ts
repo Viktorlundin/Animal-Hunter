@@ -8,8 +8,11 @@ class SocketServer
     io: any = require('socket.io')(this.server);
     path = require('path');
     activeConnections: number = 0;
-
+    gameRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
+    //trying shit
+    numOfClientsInRoom;
+    MYRSize;
     
 
     constructor()
@@ -38,25 +41,90 @@ class SocketServer
         client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
         client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
         client.on('CanILogin', (msg) => this.EventCanILogin(msg, client));
+        client.on('joinRoom', (msg) => this.EventJoinRoom(msg, client));
+        client.on('createRoom', (msg) => this.EventCreateRoom(msg, client));
+        client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
+        //trying shit
+        client.on('MyRoomSize', (msg) => this.EventSetRoomSize(msg, client));
+    }
+
+    EventJoinRoom(data, client)
+    {
+        console.log("joining room:" + data.room);
+        client.join(data.room);
+        client.myRoom = data.room;
+    }
+
+    EventCreateRoom(data, client)
+    {
+        console.log("rum: " + data.room);
+        client.join(data.room);
+        client.myRoom = data.room;
+        this.gameRooms.push(data.room + ' ' + data.numberOfPlayers);
+    }
+
+    //trying shit
+    EventSetRoomSize(data, client) {
+        console.log("room size: " + data.myroomsize);
+        this.MYRSize = data.myroomsize;
+    }
+
+    EventRemoveGame(data, client)
+    {
+        //this.gameRooms = this.gameRooms.filter(function (e) { return e !== data.room }) //Tar bort ett rum från arrayen
+    }
+
+    EventEmitGameRoomList(data, client)
+    {
+        client.emit('GameRoomList', this.gameRooms);
+        console.log("GameRoomList har skickats");
     }
 
     EventPlayerMoved(data, client)
     {
-        client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+        
+        if (client.myRoom != null) {
+            var room = client.myRoom;
+            var numnum = 0;
+            //this.NumClientsInRoom('/', room); //USE eriks variable
+            var clients_in_the_room = this.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                numnum++;
+                var client_socket = this.io.sockets.connected[clientId];
+                client_socket.emit('updateCoords', { x: data.x, y: data.y, player: data.player });
+            }
+        }
+        //trying shit
+        if (numnum == this.MYRSize) {
+            console.log("room full");
+            client.emit('RemoveWaitingForPlayersText');
+        }
+        else {
+            //console.log("waiting for players");
+            console.log("numofclientsinroom: " + numnum + " " + "room size: " + this.MYRSize)
+            client.emit('WaitingForPlayersText');
+        }
     }
+
+    ////trying shit this shit aint working
+    //NumClientsInRoom(namespace, room) {
+    //    var clients = this.io.nsps[namespace].adapter.rooms[room].sockets;
+    //    this.numOfClientsInRoom = Object.keys(clients).length;
+    //    console.log("number of clients in room: " + this.numOfClientsInRoom);
+    //    return this.numOfClientsInRoom;
+    //}
 
     EventDisconnected(client)
     {
         console.log('user disconnect');
-        this.activeConnections--;
-        client.broadcast.emit('user disconnected' + client.id);
+        this.activeConnections--;//Denna är för alla spelare, inte bara rummets spelare
+        client.broadcast.to(client['myRoom']).emit('user disconnected' + client.id);
         console.log("ActiveConnections: " + this.activeConnections)
     }
 
     EventHowManyConnections(client)
     {
-        console.log('Total connections sent');
-        client.emit('TotalConnections', this.activeConnections);
+        client.emit('TotalConnections', Object.keys(this.io.nsps['/'].adapter.rooms[client.myRoom]).length);
     }
 
     EventCanIRegister(msg, client)
@@ -71,36 +139,44 @@ class SocketServer
                 username: msg.username
             };
             collection.insert(playerDoc);
-            console.log("rEGISTERED!");
+            console.log("New account registered");
 
         });
     }
 
     EventCanILogin(msg, client)
     {
+        console.log("logintry");
         this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
             if (err) { return console.dir(err); }
-            console.log("DATA:" + msg.email + msg.password);
             var collection = db.collection('accounts').findOne
                 (
-                {
+               {
                     $and:
-                    [
+                   [
                         {
                             email: msg.email
                         },
                         {
                             password: msg.password
                         }
-                    ]
+                   ]
+                },    
+                function (err, doc) {
+                    if (err) { return console.dir(err); }
+                    if (doc) {
+                        console.log("Login success");
+                        console.log("server username found:" + doc.username);
+                        //Sänder logindata, kontoinfo
+                        //client.id = doc.email; //Sätter clientens id till dess email
+                        client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
+                        //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
+                    }
+                    else {
+                        console.log("Failed login");
+                    }
                 }
                 );
-            if (collection != null) {
-                console.log("Player logged in");
-            }
-            else
-                console.log("Failed login");
-
         });
     }
 
@@ -149,13 +225,13 @@ SS.StartWebserver();
 //socket.broadcast.emit('message', "this is a test");
 
 //// sending to all clients in 'game' room(channel) except sender
-//socket.broadcast.to('game').emit('message', 'nice game');
+//socket.broadcast.to('game').emit('message', 'nice game'); <---------------------
 
 //// sending to all clients in 'game' room(channel), include sender
-//io.in('game').emit('message', 'cool game');
+//io.in('game').emit('message', 'cool game'); <----------------------------------
 
 //// sending to sender client, only if they are in 'game' room(channel)
-//socket.to('game').emit('message', 'enjoy the game');
+//socket.to('game').emit('message', 'enjoy the game');  <------------------------
 
 //// sending to all clients in namespace 'myNamespace', include sender
 //io.of('myNamespace').emit('message', 'gg');
