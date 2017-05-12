@@ -1,3 +1,3 @@
 ﻿1>------ Build started: Project: Client, Configuration: Debug Any CPU ------
-1>  Client -> C:\Users\vikto\OneDrive\Dokument\GitHub\Jungle Hunter\Jungle-Hunter\Jungle-Hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll
+1>  Client -> C:\Users\vikto\Desktop\jungle-hunter\PhaserTypeScript\PhaserTypeScript\bin\Client.dll
 ========== Build: 1 succeeded, 0 failed, 1 up-to-date, 0 skipped ==========

@@ -7,6 +7,7 @@
             this.loaderText.anchor.setTo(0.5);
             this.load.image('jungle', 'Jungle.png');
             this.load.image('ground', 'platform.png');
+            this.load.image('defeat', 'defeat.png');
             this.load.image('titlepage', 'JungleHunterTitlescreen.png');
             this.load.image('loginpage', 'loginbackground.png');
             this.load.image('login', 'Login.png');
@@ -15,7 +16,8 @@
             this.load.image('bullet', 'bullet.png');
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
-            this.load.spritesheet('baddie', 'baddie.png', 15, 32);
+            this.load.spritesheet('baddie', 'baddie.png', 32, 32);
+            this.load.spritesheet('checkbox', 'checkbox.png', 21, 27);
             this.load.image('Lobby', 'Lobby.jpg');
             this.load.image('Host', 'Host.jpg');
             this.load.image('HostGameButton', 'hostgame.png');
@@ -27,6 +29,7 @@
             this.load.image('2pButton', '2p.png');
             this.load.image('3pButton', '3p.png');
             this.load.image('4pButton', '4p.png');
+            
         }
 
         create() {

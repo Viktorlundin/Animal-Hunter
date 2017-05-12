@@ -18,6 +18,7 @@ module JungleHunter {
             this.state.add('RunGame', RunGame, false);
             this.state.add('Lobby', Lobby, false);
             this.state.add('Host', Host, false);
+            this.state.add('GameOver', GameOver, false);
             console.log("try start boot");
             this.state.start('Boot');
         }
