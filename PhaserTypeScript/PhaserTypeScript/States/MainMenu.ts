@@ -2,8 +2,12 @@
 module JungleHunter {
     export class MainMenu extends Phaser.State {
         background: Phaser.Sprite;
-        startbutton: Phaser.Button;
-        tutorialbutton: Phaser.Button;
+        Hostbutton: Phaser.Button;
+        Joinbutton: Phaser.Button;
+        LogOutbutton: Phaser.Button;
+        playername: any;
+        welcomeText: any;
+        welcomeTextstyle: any;
         
 
 
@@ -12,15 +16,22 @@ module JungleHunter {
             this.background = this.add.sprite(0, 0, 'titlepage');
             this.background.alpha = 0;
             this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
-            this.startbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'Startgame', this.startGame, this)
-
-            Global.socket.emit('CanIRegister', { email: "joe@goes.se", password: "sanfer123", username: "JungleJontas" });
-            Global.socket.emit('CanILogin', { email: "joe@goes.se", password: "sanfer123" });
- 
+            this.welcomeTextstyle = { font: "36px Elephant", fill: "Green" };
+            this.welcomeText = this.add.text(this.game.world.centerX - 300, this.game.world.centerY - 200, "Welcome" + " " + this.playername, this.welcomeTextstyle);
+            this.Hostbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY - 50, 'HostGameButton', this.HostGame, this)
+            this.Joinbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'JoinGameButton', this.JoinGame, this)
+            this.LogOutbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 50, 'LogOutButton', this.LogOut, this)
         }
 
-        startGame() {
-            this.game.state.start('RunGame', true, false);
+        HostGame() {
+            this.game.state.start('Host', true, false);
         }
+        JoinGame() {
+            this.game.state.start('Lobby', true, false);
+        }
+        LogOut() {
+            this.game.state.start('Login', true, false);
+        }
+
     }
 }

@@ -8,7 +8,8 @@ class SocketServer
     io: any = require('socket.io')(this.server);
     path = require('path');
     activeConnections: number = 0;
-
+    gameRooms: any = new Array();
+    busyRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
     
 
@@ -38,25 +39,110 @@ class SocketServer
         client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
         client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
         client.on('CanILogin', (msg) => this.EventCanILogin(msg, client));
+        client.on('joinRoom', (msg) => this.EventJoinRoom(msg, client));
+        client.on('createRoom', (msg) => this.EventCreateRoom(msg, client));
+        client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
+        client.on('StartGame', (room) => this.EventStartGame(room));
+    }
+
+    EventJoinRoom(data, client)
+    {
+        console.log("joining room:" + data.room);
+        client.join(data.room);
+        client.myRoom = data.room;
+    }
+
+    EventCreateRoom(data, client)
+    {
+        console.log("rum: " + data.room);
+        client.join(data.room);
+        client.myRoom = data.room;
+        this.gameRooms.push(data.room + ' ' + data.numberOfPlayers);
+    }
+
+    EventStartGame(room1)
+    {
+        function SpawnMob() {
+            var y = Math.floor(Math.random() * (600 - 1 + 1)) + 1;
+            var room = room1;
+            var clients_in_the_room = self.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = self.io.sockets.connected[clientId];
+                client_socket.emit('Mob', { y: y, mob: 'Mob1' });
+
+            }
+        }
+        function SpawnBOSS() {
+            var room = room1;
+            var clients_in_the_room = self.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = self.io.sockets.connected[clientId];
+                var y = Math.floor(Math.random() * (600 - 1 + 1)) + 1;
+                console.log("y:" + y);
+                client_socket.emit('Mob', { y: y, mob: 'Mob2' });
+
+            }
+        }
+        var bool = true;
+        for (var room in this.busyRooms)
+        {
+            if (room == room1)
+            {
+                bool = false;
+                break;
+            }
+            else
+            {
+                bool = true;
+            }  
+        }
+
+        if (bool) {
+            this.busyRooms.push(room1);
+            var self = this;
+            var levelDifficulty = 2;
+            setInterval(SpawnMob, levelDifficulty * 1000);
+            //setTimeout(SPAWNBOSS, 10 * 1000);
+
+        }
+    }
+
+    EventRemoveGame(data, client)
+    {
+        //this.gameRooms = this.gameRooms.filter(function (e) { return e !== data.room }) //Tar bort ett rum från arrayen
+    }
+
+    EventEmitGameRoomList(data, client)
+    {
+        client.emit('GameRoomList', this.gameRooms);
+        console.log("GameRoomList har skickats");
     }
 
     EventPlayerMoved(data, client)
     {
-        client.broadcast.emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+        if (client.myRoom != null) {
+            var room = client.myRoom;
+
+            var clients_in_the_room = this.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = this.io.sockets.connected[clientId];
+                if(client.id != client_socket.id)
+                    client_socket.emit('updateCoords', { x: data.x, y: data.y, player: data.player });
+            }
+        }
     }
 
     EventDisconnected(client)
     {
         console.log('user disconnect');
-        this.activeConnections--;
-        client.broadcast.emit('user disconnected' + client.id);
+        this.activeConnections--;//Denna är för alla spelare, inte bara rummets spelare
+        client.broadcast.to(client['myRoom']).emit('user disconnected' + client.id);
         console.log("ActiveConnections: " + this.activeConnections)
     }
 
     EventHowManyConnections(client)
     {
-        console.log('Total connections sent');
-        client.emit('TotalConnections', this.activeConnections);
+        client.emit('TotalConnections', Object.keys(this.io.nsps['/'].adapter.rooms[client.myRoom]).length);
     }
 
     EventCanIRegister(msg, client)
@@ -64,23 +150,6 @@ class SocketServer
         this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
             if (err) { return console.dir(err); }
 
-            var collection = db.collection('accounts');
-            var playerDoc = {
-                email: msg.email,
-                password: msg.password,
-                username: msg.username
-            };
-            collection.insert(playerDoc);
-            console.log("rEGISTERED!");
-
-        });
-    }
-
-    EventCanILogin(msg, client)
-    {
-        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
-            if (err) { return console.dir(err); }
-            console.log("DATA:" + msg.email + msg.password);
             var collection = db.collection('accounts').findOne
                 (
                 {
@@ -93,14 +162,62 @@ class SocketServer
                             password: msg.password
                         }
                     ]
+                },
+                function (err, doc) {
+                    if (err) { return console.dir(err); }
+                    if (doc) {
+                        console.log("Cannot register");
+                        client.emit('RegisterFailed', null);
+
+                    }
+                    else {
+                        var playerDoc = {
+                            email: msg.email,
+                            password: msg.password,
+                            username: msg.username
+                        };
+                        collection.insert(playerDoc);
+                        console.log("New account registered");
+                    }
                 }
                 );
-            if (collection != null) {
-                console.log("Player logged in");
-            }
-            else
-                console.log("Failed login");
+        });
+    }
 
+    EventCanILogin(msg, client)
+    {
+        console.log("logintry");
+        this.MongoClient.connect("mongodb://localhost:27017/junglehunter", function (err, db) {
+            if (err) { return console.dir(err); }
+            var collection = db.collection('accounts').findOne
+                (
+               {
+                    $and:
+                   [
+                        {
+                            email: msg.email
+                        },
+                        {
+                            password: msg.password
+                        }
+                   ]
+                },    
+                function (err, doc) {
+                    if (err) { return console.dir(err); }
+                    if (doc) {
+                        console.log("Login success");
+                        console.log("server username found:" + doc.username);
+                        //Sänder logindata, kontoinfo
+                        //client.id = doc.email; //Sätter clientens id till dess email
+                        client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
+                        //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
+                    }
+                    else {
+                        console.log("Failed login");
+                        client.emit('loginfailed', null);
+                    }
+                }
+                );
         });
     }
 
@@ -149,13 +266,13 @@ SS.StartWebserver();
 //socket.broadcast.emit('message', "this is a test");
 
 //// sending to all clients in 'game' room(channel) except sender
-//socket.broadcast.to('game').emit('message', 'nice game');
+//socket.broadcast.to('game').emit('message', 'nice game'); <---------------------
 
 //// sending to all clients in 'game' room(channel), include sender
-//io.in('game').emit('message', 'cool game');
+//io.in('game').emit('message', 'cool game'); <----------------------------------
 
 //// sending to sender client, only if they are in 'game' room(channel)
-//socket.to('game').emit('message', 'enjoy the game');
+//socket.to('game').emit('message', 'enjoy the game');  <------------------------
 
 //// sending to all clients in namespace 'myNamespace', include sender
 //io.of('myNamespace').emit('message', 'gg');
