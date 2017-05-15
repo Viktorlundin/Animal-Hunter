@@ -7,7 +7,7 @@
         platforms: Phaser.Group;
         playerID: any = null;
         public playerList = new Array();
-
+        gameover: boolean = false;
         //trying shit
         style: any;
         text: any;
@@ -27,6 +27,7 @@
             }
             this.setEventHandlers();
             console.log("AKTIVT SPLERUM=== " + Global.prototype.PlayerData.activeGameRoom);
+            //this.game.time.events.add(Phaser.Timer.SECOND * 4, this.gotoGameOverstate, this);
         }
 
         update()
@@ -77,6 +78,7 @@
         EventUpdateCoordinates(data)
         {
             console.log("coords from player recived n updated, cordS:" + data);
+            console.log("Nånting" + data.player);
             var id, x, y;
             id = data.player;
             x = data.x;
@@ -125,6 +127,11 @@
             Global.socket.on('WaitingForPlayersText', () => this.WaitingForPlayersText());
             Global.socket.on('RemoveWaitingForPlayersText', () => this.RemoveWaitingForPlayersText());
         }
+
+        gotoGameOverstate() {
+            this.game.state.start('GameOver', true, false);
+        }
+
 
     }
 }

@@ -81,13 +81,13 @@ var SocketServer = (function () {
             client.emit('WaitingForPlayersText');
         }
     };
-    //trying shit this shit aint working
-    SocketServer.prototype.NumClientsInRoom = function (namespace, room) {
-        var clients = this.io.nsps[namespace].adapter.rooms[room].sockets;
-        this.numOfClientsInRoom = Object.keys(clients).length;
-        console.log("number of clients in room: " + this.numOfClientsInRoom);
-        return this.numOfClientsInRoom;
-    };
+    ////trying shit this shit aint working
+    //NumClientsInRoom(namespace, room) {
+    //    var clients = this.io.nsps[namespace].adapter.rooms[room].sockets;
+    //    this.numOfClientsInRoom = Object.keys(clients).length;
+    //    console.log("number of clients in room: " + this.numOfClientsInRoom);
+    //    return this.numOfClientsInRoom;
+    //}
     SocketServer.prototype.EventDisconnected = function (client) {
         console.log('user disconnect');
         this.activeConnections--; //Denna är för alla spelare, inte bara rummets spelare
@@ -137,7 +137,6 @@ var SocketServer = (function () {
                     //Sänder logindata, kontoinfo
                     //client.id = doc.email; //Sätter clientens id till dess email
                     client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
-                    //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
                 }
                 else {
                     console.log("Failed login");

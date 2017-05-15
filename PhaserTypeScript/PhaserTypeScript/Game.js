@@ -5,6 +5,32 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var JungleHunter;
 (function (JungleHunter) {
+    var Player = (function (_super) {
+        __extends(Player, _super);
+        function Player(game, x, y) {
+            _super.call(this, game, x, y, 'dude', 0);
+            this.x = null;
+            this.y = null;
+            this.lastXPosition = null;
+            this.lastYPosition = null;
+            this.cursors = this.game.input.keyboard.createCursorKeys();
+            this.x = x;
+            this.y = y;
+            this.animations.add('left', [0, 1, 2, 3], 10, true);
+            this.animations.add('right', [5, 6, 7, 8], 10, true);
+            this.game.physics.arcade.enable(this);
+            this.body.collideWorldBounds = true;
+            this.body.drag.y = 1000;
+            this.game.physics.arcade.enable(this);
+            this.game.add.existing(this);
+        }
+        ;
+        return Player;
+    }(Phaser.Sprite));
+    JungleHunter.Player = Player;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
     //import * as game from "./Game.ts";
     console.log("yoyoyo");
     window.onload = function () { var game = new JungleHunter.Main(); };
@@ -28,60 +54,23 @@ var JungleHunter;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
-    var Lobby = (function (_super) {
-        __extends(Lobby, _super);
-        function Lobby() {
+    var GameOver = (function (_super) {
+        __extends(GameOver, _super);
+        function GameOver() {
             _super.apply(this, arguments);
         }
-        Lobby.prototype.create = function () {
-            this.background = this.add.sprite(0, 0, 'Lobby');
-            this.backbutton = this.game.add.button(this.game.world.centerX - 250, this.game.world.centerY, 'BackButton', this.GoBack, this);
-            this.style = { font: "32px Elephant", fill: "black" };
-            this.text = this.game.add.text(this.game.world.centerX - 50, this.game.world.centerY - 400, "Available games", this.style);
-            this.ButtonList = new Array();
-            this.SetEventHandlers();
+        GameOver.prototype.create = function () {
+            this.background = this.add.sprite(0, 0, 'defeat');
+            this.gameoverTextstyle = { font: "72px Elephant", fill: "Black" };
+            this.gameoverText = this.add.text(this.game.world.centerX - 300, this.game.world.centerY - 200, "Game Over", this.gameoverTextstyle);
+            this.gobackbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 50, 'BackButton', this.Goback, this);
         };
-        Lobby.prototype.SetEventHandlers = function () {
-            var _this = this;
-            JungleHunter.Global.socket.on('GameRoomList', function (data) { return _this.EvenGetLobbyList(data); });
-            JungleHunter.Global.socket.emit('EmitGameRoomList', null);
-            console.log("event emitted lobby");
-        };
-        Lobby.prototype.EvenGetLobbyList = function (msg) {
-            this.LobbyList = msg;
-            console.log("LobbyList set");
-            this.CheckLobbyList();
-        };
-        Lobby.prototype.startGame = function (data) {
-            var playerName = String(data.getChildAt(0).text);
-            var splittedPlayerName = playerName.split(" ");
-            this.JoinRoom(splittedPlayerName[0]);
-            JungleHunter.Global.numberOfPlayers = Number(splittedPlayerName[1]);
-            this.game.state.start('RunGame', true, false);
-        };
-        Lobby.prototype.GoBack = function () {
+        GameOver.prototype.Goback = function () {
             this.game.state.start('MainMenu', true, false);
         };
-        Lobby.prototype.JoinRoom = function (playerName) {
-            JungleHunter.Global.prototype.PlayerData.activeGameRoom = playerName;
-            console.log("playerName ===" + playerName);
-            JungleHunter.Global.socket.emit('joinRoom', { room: JungleHunter.Global.prototype.PlayerData.activeGameRoom });
-        };
-        Lobby.prototype.LeaveRoom = function (playerName) {
-            JungleHunter.Global.socket.leave(playerName);
-        };
-        Lobby.prototype.CheckLobbyList = function () {
-            for (var i = 0; i <= this.LobbyList.length - 1; i++) {
-                var joinbutton = this.game.add.button(this.game.world.centerX, 35 + (i * 75), 'EmptyButton', this.startGame, this);
-                var text = this.game.add.text(0, 0, this.LobbyList[i] + " slots", { font: "14px Elephant", fill: "black", wordWrap: true, wordWrapWidth: joinbutton.width, align: "center" });
-                text.anchor.set(-0.20);
-                joinbutton.addChild(text);
-                this.ButtonList.push(joinbutton);
-            }
-        };
-        return Lobby;
+        return GameOver;
     }(Phaser.State));
-    JungleHunter.Lobby = Lobby;
+    JungleHunter.GameOver = GameOver;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
@@ -146,6 +135,63 @@ var JungleHunter;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
+    var Lobby = (function (_super) {
+        __extends(Lobby, _super);
+        function Lobby() {
+            _super.apply(this, arguments);
+        }
+        Lobby.prototype.create = function () {
+            this.background = this.add.sprite(0, 0, 'Lobby');
+            this.backbutton = this.game.add.button(this.game.world.centerX - 250, this.game.world.centerY, 'BackButton', this.GoBack, this);
+            this.style = { font: "32px Elephant", fill: "black" };
+            this.text = this.game.add.text(this.game.world.centerX - 50, this.game.world.centerY - 400, "Available games", this.style);
+            this.ButtonList = new Array();
+            this.SetEventHandlers();
+        };
+        Lobby.prototype.SetEventHandlers = function () {
+            var _this = this;
+            JungleHunter.Global.socket.on('GameRoomList', function (data) { return _this.EvenGetLobbyList(data); });
+            JungleHunter.Global.socket.emit('EmitGameRoomList', null);
+            console.log("event emitted lobby");
+        };
+        Lobby.prototype.EvenGetLobbyList = function (msg) {
+            this.LobbyList = msg;
+            console.log("LobbyList set");
+            this.CheckLobbyList();
+        };
+        Lobby.prototype.startGame = function (data) {
+            var playerName = String(data.getChildAt(0).text);
+            var splittedPlayerName = playerName.split(" ");
+            this.JoinRoom(splittedPlayerName[0]);
+            JungleHunter.Global.numberOfPlayers = Number(splittedPlayerName[1]);
+            this.game.state.start('RunGame', true, false);
+        };
+        Lobby.prototype.GoBack = function () {
+            this.game.state.start('MainMenu', true, false);
+        };
+        Lobby.prototype.JoinRoom = function (playerName) {
+            JungleHunter.Global.prototype.PlayerData.activeGameRoom = playerName;
+            console.log("playerName ===" + playerName);
+            JungleHunter.Global.socket.emit('joinRoom', { room: JungleHunter.Global.prototype.PlayerData.activeGameRoom });
+        };
+        Lobby.prototype.LeaveRoom = function (playerName) {
+            JungleHunter.Global.socket.leave(playerName);
+        };
+        Lobby.prototype.CheckLobbyList = function () {
+            for (var i = 0; i <= this.LobbyList.length - 1; i++) {
+                var joinbutton = this.game.add.button(this.game.world.centerX, 35 + (i * 75), 'EmptyButton', this.startGame, this);
+                var text = this.game.add.text(0, 0, this.LobbyList[i] + " slots", { font: "14px Elephant", fill: "black", wordWrap: true, wordWrapWidth: joinbutton.width, align: "center" });
+                text.anchor.set(-0.20);
+                joinbutton.addChild(text);
+                this.ButtonList.push(joinbutton);
+            }
+        };
+        return Lobby;
+    }(Phaser.State));
+    JungleHunter.Lobby = Lobby;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
     var AccountData = (function () {
         function AccountData() {
             this.activeGameRoom = null;
@@ -161,9 +207,15 @@ var JungleHunter;
         Login.prototype.create = function () {
             console.log("Är i login menu nu.");
             this.setLoginEventHandlers(); //Sätter lyssna funktion(er)
+            this.setLoginEventandlers();
+            this.setRegisterEventHandlers();
             this.background = this.add.sprite(0, 0, 'loginpage');
             this.loginbutton = this.game.add.button(this.game.world.centerX - 250, this.game.world.centerY, 'login', this.login, this);
             this.registerbutton = this.game.add.button(this.game.world.centerX + 100, this.game.world.centerY, 'register', this.registernewPlayer, this);
+            this.styles = { font: "32px Elephant", fill: "white" };
+            this.rememberText = this.game.add.text(this.game.world.centerX - 200, this.game.world.centerY + 100, "Remember me", this.styles);
+            this.checkbox = this.game.add.button(this.game.world.centerX + 50, this.game.world.centerY + 120, 'checkbox', this.actiononclick, this, null, null, null, null);
+            this.checkbox.anchor.setTo(0.5, 0.5);
             var plugin = new PhaserInput.Plugin(this.game, this.game.plugins);
             this.add.plugin(plugin);
             this.inputEmail = this.game.add.inputField(330, 195, {
@@ -202,8 +254,48 @@ var JungleHunter;
                 placeHolder: 'Password',
                 type: PhaserInput.InputType.password
             });
+            this.checkCookie();
+        };
+        Login.prototype.setCookie = function (cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        };
+        Login.prototype.getCookie = function (cname) {
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        };
+        Login.prototype.checkCookie = function () {
+            var useremail = this.getCookie("userEmail");
+            var username = this.getCookie("userName");
+            if (useremail != null) {
+                this.inputEmail.setText(useremail);
+                this.inputName.setText(username);
+                this.checkbox.frame = 1;
+            }
+            else {
+                if (useremail != "" && useremail != null) {
+                    this.setCookie("userEmail", useremail, 365);
+                    this.setCookie("userName", username, 365);
+                }
+            }
         };
         Login.prototype.EventLoginAccepted = function (accountData) {
+            if (this.checkbox.frame == 1) {
+                this.setCookie("userEmail", this.inputEmail.value, 365);
+                this.setCookie("userName", this.inputName.value, 365);
+            }
             if (accountData) {
                 //Sätt in all accountdata i en klass obj och skicka med den i startGame(klass obj)
                 var PlayerData = new AccountData();
@@ -213,6 +305,32 @@ var JungleHunter;
                 JungleHunter.Global.prototype.PlayerData = PlayerData;
                 this.startGame();
             }
+        };
+        Login.prototype.loginfailed = function () {
+            this.style = { font: "64px Elephant", fill: "red" };
+            this.text = this.game.add.text(this.game.world.centerX, this.game.world.centerY - 200, "Failed to login", this.style);
+            var tween = this.add.tween(this.text).to({ alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+        };
+        Login.prototype.Registerfailed = function () {
+            this.Style = { font: "18px Elephant", fill: "red" };
+            this.text = this.game.add.text(this.game.world.centerX - 250, this.game.world.centerY - 150, "A user with that email is already registered", this.Style);
+            var tween = this.add.tween(this.text).to({ alpha: 0 }, 5000, Phaser.Easing.Linear.None, true);
+        };
+        Login.prototype.actiononclick = function () {
+            if (this.checkbox.frame == 0) {
+                this.checkbox.frame = 1;
+            }
+            else {
+                this.checkbox.frame = 0;
+            }
+        };
+        Login.prototype.setLoginEventandlers = function () {
+            var _this = this;
+            JungleHunter.Global.socket.on('loginfailed', function () { return _this.loginfailed(); });
+        };
+        Login.prototype.setRegisterEventHandlers = function () {
+            var _this = this;
+            JungleHunter.Global.socket.on('RegisterFailed', function () { return _this.Registerfailed(); });
         };
         Login.prototype.setLoginEventHandlers = function () {
             var _this = this;
@@ -226,7 +344,8 @@ var JungleHunter;
             console.log("Emittat");
         };
         Login.prototype.startGame = function () {
-            this.game.state.start('MainMenu', true, false);
+            this.state.states['MainMenu'].playername = this.inputName.value;
+            this.game.state.start('MainMenu', true, false, this.inputName);
         };
         return Login;
     }(Phaser.State));
@@ -253,6 +372,7 @@ var JungleHunter;
             this.state.add('RunGame', JungleHunter.RunGame, false);
             this.state.add('Lobby', JungleHunter.Lobby, false);
             this.state.add('Host', JungleHunter.Host, false);
+            this.state.add('GameOver', JungleHunter.GameOver, false);
             console.log("try start boot");
             this.state.start('Boot');
         }
@@ -276,6 +396,8 @@ var JungleHunter;
             this.background = this.add.sprite(0, 0, 'titlepage');
             this.background.alpha = 0;
             this.add.tween(this.background).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
+            this.welcomeTextstyle = { font: "36px Elephant", fill: "Green" };
+            this.welcomeText = this.add.text(this.game.world.centerX - 300, this.game.world.centerY - 200, "Welcome" + " " + this.playername, this.welcomeTextstyle);
             this.Hostbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY - 50, 'HostGameButton', this.HostGame, this);
             this.Joinbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'JoinGameButton', this.JoinGame, this);
             this.LogOutbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 50, 'LogOutButton', this.LogOut, this);
@@ -289,38 +411,9 @@ var JungleHunter;
         MainMenu.prototype.LogOut = function () {
             this.game.state.start('Login', true, false);
         };
-        MainMenu.prototype.startGame = function () {
-            this.game.state.start('RunGame', true, false);
-        };
         return MainMenu;
     }(Phaser.State));
     JungleHunter.MainMenu = MainMenu;
-})(JungleHunter || (JungleHunter = {}));
-var JungleHunter;
-(function (JungleHunter) {
-    var Player = (function (_super) {
-        __extends(Player, _super);
-        function Player(game, x, y) {
-            _super.call(this, game, x, y, 'dude', 0);
-            this.x = null;
-            this.y = null;
-            this.lastXPosition = null;
-            this.lastYPosition = null;
-            this.cursors = this.game.input.keyboard.createCursorKeys();
-            this.x = x;
-            this.y = y;
-            this.animations.add('left', [0, 1, 2, 3], 10, true);
-            this.animations.add('right', [5, 6, 7, 8], 10, true);
-            this.game.physics.arcade.enable(this);
-            this.body.collideWorldBounds = true;
-            this.body.drag.y = 1000;
-            this.game.physics.arcade.enable(this);
-            this.game.add.existing(this);
-        }
-        ;
-        return Player;
-    }(Phaser.Sprite));
-    JungleHunter.Player = Player;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
@@ -334,6 +427,7 @@ var JungleHunter;
             this.loaderText.anchor.setTo(0.5);
             this.load.image('jungle', 'Jungle.png');
             this.load.image('ground', 'platform.png');
+            this.load.image('defeat', 'defeat.png');
             this.load.image('titlepage', 'JungleHunterTitlescreen.png');
             this.load.image('loginpage', 'loginbackground.png');
             this.load.image('login', 'Login.png');
@@ -342,7 +436,8 @@ var JungleHunter;
             this.load.image('bullet', 'bullet.png');
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
-            this.load.spritesheet('baddie', 'baddie.png', 15, 32);
+            this.load.spritesheet('baddie', 'baddie.png', 32, 32);
+            this.load.spritesheet('checkbox', 'checkbox.png', 21, 27);
             this.load.image('Lobby', 'Lobby.jpg');
             this.load.image('Host', 'Host.jpg');
             this.load.image('HostGameButton', 'hostgame.png');
@@ -375,6 +470,7 @@ var JungleHunter;
             _super.apply(this, arguments);
             this.playerID = null;
             this.playerList = new Array();
+            this.gameover = false;
         }
         RunGame.prototype.create = function () {
             console.log("spelet är igång");
@@ -387,6 +483,7 @@ var JungleHunter;
             }
             this.setEventHandlers();
             console.log("AKTIVT SPLERUM=== " + JungleHunter.Global.prototype.PlayerData.activeGameRoom);
+            //this.game.time.events.add(Phaser.Timer.SECOND * 4, this.gotoGameOverstate, this);
         };
         RunGame.prototype.update = function () {
             console.log("Player ID:" + this.playerID);
@@ -426,6 +523,7 @@ var JungleHunter;
         };
         RunGame.prototype.EventUpdateCoordinates = function (data) {
             console.log("coords from player recived n updated, cordS:" + data);
+            console.log("Nånting" + data.player);
             var id, x, y;
             id = data.player;
             x = data.x;
@@ -467,6 +565,9 @@ var JungleHunter;
             //trying shit
             JungleHunter.Global.socket.on('WaitingForPlayersText', function () { return _this.WaitingForPlayersText(); });
             JungleHunter.Global.socket.on('RemoveWaitingForPlayersText', function () { return _this.RemoveWaitingForPlayersText(); });
+        };
+        RunGame.prototype.gotoGameOverstate = function () {
+            this.game.state.start('GameOver', true, false);
         };
         return RunGame;
     }(Phaser.State));

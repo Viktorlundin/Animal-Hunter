@@ -1,30 +1,20 @@
 ﻿module JungleHunter {
     export class GameOver extends Phaser.State {
         background: Phaser.Sprite;
-        music: Phaser.Sound;
-        backbutton: Phaser.Button;
-        playerID: any = null;
-        public playerList = new Array();
-        public mobsList = new Array();
-        gameovertext: any;
-        gameovertextstyle: any;
+        gobackbutton: Phaser.Button;
+        playername: any;
+        gameoverText: any;
+        gameoverTextstyle: any;
 
         create() {
             this.background = this.add.sprite(0, 0, 'defeat');
-            this.backbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 300, 'BackButton', this.ReturnToMainMenu, this)
-            this.gameovertextstyle = { font: "72px Elephant", fill: "Black" };
-            this.gameovertext = this.game.add.text(this.game.world.centerX-500, this.game.world.centerY-300, "GAME OVER", this.gameovertextstyle);
+            this.gameoverTextstyle = { font: "72px Elephant", fill: "Black" };
+            this.gameoverText = this.add.text(this.game.world.centerX - 300, this.game.world.centerY - 200, "Game Over" , this.gameoverTextstyle);
+            this.gobackbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 50, 'BackButton', this.Goback, this)
         }
 
-        PlayAgain() {
-            this.game.state.start('RunGame', true, false);
-        }
-
-        ReturnToMainMenu() {
+        Goback() {
             this.game.state.start('MainMenu', true, false);
         }
-
     }
 }
-
-       
