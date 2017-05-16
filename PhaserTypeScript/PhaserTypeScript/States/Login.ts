@@ -152,6 +152,13 @@
                 Phaser.Easing.Linear.None, true);
         }
 
+        RegisterSuccess() {
+            this.Style = { font: "24px Elephant", fill: "Green" };
+            this.text = this.game.add.text(this.game.world.centerX - 250, this.game.world.centerY - 150, "Successfully Registered", this.Style);
+            var tween = this.add.tween(this.text).to({ alpha: 0 }, 5000,
+                Phaser.Easing.Linear.None, true);
+        }
+
         actiononclick() {
             if (this.checkbox.frame == 0) {
                 this.checkbox.frame = 1;
@@ -167,6 +174,7 @@
 
         setRegisterEventHandlers() {
             Global.socket.on('RegisterFailed', () => this.Registerfailed());
+            Global.socket.on('RegisterSuccessfully', () => this.RegisterSuccess());
         }
 
 

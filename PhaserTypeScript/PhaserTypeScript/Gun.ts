@@ -1,10 +1,12 @@
 ﻿module JungleHunter {
     export class Gun extends Phaser.Sprite {
-        weapon; sprite; cursor;
+        weapon;
+        sprite;
+        cursor;
 
 
         constructor(game: Phaser.Game, x: number, y: number) {
-            super(game, x, y, 'baddie', 0);
+            super(game, x, y, 'bullet', 0);
             this.weapon = this.game.add.weapon(30, 'bullet');
             this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
             this.weapon.bulletSpeed = 600;

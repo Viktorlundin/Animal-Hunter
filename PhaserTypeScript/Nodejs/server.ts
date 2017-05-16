@@ -35,6 +35,7 @@ class SocketServer
         client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
         //Sätt lyssna funktioner för denna klient
         client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
+        client.on('mobMoved', (data) => this.EventMobMoved(data, client));
         client.on('disconnect', () => this.EventDisconnected(client));
         client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
         client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
@@ -64,11 +65,12 @@ class SocketServer
     {
         function SpawnMob() {
             var y = Math.floor(Math.random() * (600 - 1 + 1)) + 1;
+            var z;
             var room = room1;
             var clients_in_the_room = self.io.sockets.adapter.rooms[room];
             for (var clientId in clients_in_the_room) {
                 var client_socket = self.io.sockets.connected[clientId];
-                client_socket.emit('Mob', { y: y, mob: 'Mob1' });
+                client_socket.emit('Mob', { y: y, mob: z++ });
 
             }
         }
@@ -107,11 +109,6 @@ class SocketServer
         }
     }
 
-    EventRemoveGame(data, client)
-    {
-        //this.gameRooms = this.gameRooms.filter(function (e) { return e !== data.room }) //Tar bort ett rum från arrayen
-    }
-
     EventEmitGameRoomList(data, client)
     {
         client.emit('GameRoomList', this.gameRooms);
@@ -128,6 +125,19 @@ class SocketServer
                 var client_socket = this.io.sockets.connected[clientId];
                 if(client.id != client_socket.id)
                     client_socket.emit('updateCoords', { x: data.x, y: data.y, player: data.player });
+            }
+        }
+    }
+
+    EventMobMoved(data, client) {
+        if (client.myRoom != null) {
+            var room = client.myRoom;
+
+            var clients_in_the_room = this.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = this.io.sockets.connected[clientId];
+                if (client.id != client_socket.id)
+                    client_socket.emit('updateMobCoords', { x: data.x, mob: data.mob });
             }
         }
     }
@@ -176,8 +186,10 @@ class SocketServer
                             password: msg.password,
                             username: msg.username
                         };
+                        var collection = db.collection('accounts')
                         collection.insert(playerDoc);
                         console.log("New account registered");
+                        client.emit('RegisterSuccessfully', null);
                     }
                 }
                 );

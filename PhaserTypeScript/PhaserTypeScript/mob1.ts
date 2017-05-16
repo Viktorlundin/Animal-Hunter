@@ -2,6 +2,9 @@
     export class mob1 extends Phaser.Sprite {
         public x: number = null;
         public y: number = null;
+        public lastXPosition: number = null;
+        public id: number = null;
+        
 
         constructor(game: Phaser.Game, x: number, y: number) {
             super(game, x, y, 'baddie', 0);
@@ -10,11 +13,11 @@
 
             this.animations.add('right', [2, 3], 10, true);
             this.game.physics.arcade.enable(this);
-            this.body.collideWorldBounds = true;
+            this.checkWorldBounds = true;
             this.body.drag.y = 1000;
             this.game.physics.arcade.enable(this);
             this.game.add.existing(this);
-
+            //this.events.onOutOfBounds.add(RunGame.prototype.GameOver, this);
             this.body.velocity.x = 150;
             this.animations.play('right');
         }
