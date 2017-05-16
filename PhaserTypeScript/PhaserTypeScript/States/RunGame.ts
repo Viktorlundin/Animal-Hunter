@@ -10,13 +10,14 @@
         playerWeaponSprite = new Array();
         playerWeaponsLists = new Array();
         fireButton;
+        mobs: any;
 
 
         Bullet = function (game, key) {
             Phaser.Sprite.call(this, game, 0, 0, key);
 
             this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
-
+            this.physics.arcade.enable(this.Bullet);
             this.anchor.set(0.5);
 
             this.checkWorldBounds = true;
@@ -31,7 +32,7 @@
 
         create()
         {
-            console.log("spelet är igång");
+            
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
             this.platforms = this.add.group();
@@ -71,7 +72,7 @@
             {
                 this.playerList[i] = new Player(this.game, 900, (100 + (i * 130)));
             }
-            //this.physics.arcade.collide(bullets, wall, hitWall, null, this); kollision med mobs?
+            
             this.setEventHandlers();
         }
 
@@ -86,7 +87,7 @@
                     this.playerWeaponSprite[i].body.position.x = this.playerList[i].x - 500; //vapnet följer efter spelaren
                     this.playerWeaponSprite[i].body.position.y = this.playerList[i].y - 370;
                     this.playerWeaponSprite[i].bringToTop();
-                    console.log("assigning" + i);
+                   
                 }
             }
             if (this.fireButton.isDown)
@@ -94,8 +95,10 @@
                 this.playerWeaponsLists[this.playerID][0].trackRotation = false;
                 this.playerWeaponsLists[this.playerID][0].fireAngle = Phaser.ANGLE_LEFT;
                 this.playerWeaponsLists[this.playerID][0].fire();
-                console.log("firebutton assigned down");
             }
+
+
+            this.physics.arcade.overlap(this.playerList[this.playerID], this.mobs, this.after_collision, null, this); 
         }
 
         Movement(player: Player)
@@ -124,6 +127,11 @@
             this.BroadCastPlayerCoordinates(player);
         }
 
+        after_collision() {
+            console.log("Killing a mob");
+            this.mobs.kill();
+        }
+
         EventSetMyPlayerID(data)
         {
             this.playerID = data;
@@ -131,19 +139,20 @@
 
         EventNewPlayer(data)
         {
-            console.log("NY SPELARE");
+           
         }
 
         EventSpawnMob(data)
         {
-            var mob = new mob1(this.game, 1, data.y);
+            //this.mob = new mob1(this.game, 1, data.y);
+            this.mobs = this.add.group();
         }
 
 
 
         EventUpdateCoordinates(data)
         {
-            console.log("coords from player recived n updated, cordS:" + data);
+            
             var id, x, y;
             id = data.player;
             x = data.x;
@@ -159,7 +168,7 @@
                 var x = player.body.position.x;
                 var y = player.body.position.y;
                 Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
-                console.log("coords sent");
+                
             }
             player.lastXPosition = player.x;
             player.lastYPosition = player.y;
@@ -167,7 +176,7 @@
 
         setEventHandlers()
         {
-            console.log("event handler set");
+            
             Global.socket.on('TotalConnections', (data) => this.EventSetMyPlayerID(data));
             Global.socket.on('newPlayer', (data) => this.EventNewPlayer(data));
             Global.socket.on('updateCoords', (data) => this.EventUpdateCoordinates(data));

@@ -17,7 +17,7 @@
             this.load.image('bullet', 'bullet.png');
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
-            this.load.spritesheet('baddie', 'baddie.png', 15, 32);
+            this.load.spritesheet('baddie', 'baddie.png', 32, 32);
             this.load.image('Lobby', 'Lobby.jpg');
             this.load.image('Host', 'Host.jpg');
             this.load.spritesheet('checkbox', 'checkbox.png', 21, 27);

@@ -9,14 +9,15 @@
             this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
             this.weapon.bulletSpeed = 600;
             this.weapon.fireRate = 100;
+           
             //Vapnets sprite
-            this.sprite = this.add.sprite(400, 300, 'pistol'); this.
+            this.sprite = this.sprite(400, 300, 'pistol'); 
             this.sprite.anchor.set(0.5);
             game.physics.arcade.enable(this.sprite);
 
             this.weapon.trackSprite(this.sprite, -20, 0, true);//Logiska vapnet följer efter spriten
             this.weapon.trackRotation = false;
-            this.cursors = this.input.keyboard.createCursorKeys();
+            
         }
     }
 }
