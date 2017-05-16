@@ -13,7 +13,7 @@
             this.background = this.add.sprite(0, 0, 'defeat');
             this.backbutton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 300, 'BackButton', this.ReturnToMainMenu, this)
             this.gameovertextstyle = { font: "72px Elephant", fill: "Black" };
-            this.gameovertext = this.game.add.text(this.game.world.centerX-500, this.game.world.centerY-300, "GAME OVER", this.gameovertextstyle);
+            this.gameovertext = this.game.add.text(this.game.world.centerX - 500, this.game.world.centerY - 300, "GAME OVER", this.gameovertextstyle);
         }
 
         PlayAgain() {
@@ -27,4 +27,3 @@
     }
 }
 
-       

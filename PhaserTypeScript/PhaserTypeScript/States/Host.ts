@@ -29,33 +29,32 @@ module JungleHunter {
         }
 
         OnePfunc() {
-            this.CreateRoom(Global.prototype.PlayerData.username);
             Global.numberOfPlayers = 1;
+            this.CreateRoom(Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         }
 
         TwoPfunc() {
-            this.CreateRoom(Global.prototype.PlayerData.username);
             Global.numberOfPlayers = 2;
-
+            this.CreateRoom(Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         }
 
         ThreePfunc() {
-            this.CreateRoom(Global.prototype.PlayerData.username);
             Global.numberOfPlayers = 3;
+            this.CreateRoom(Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         }
 
         FourPfunc() {
-            this.CreateRoom(Global.prototype.PlayerData.username);
             Global.numberOfPlayers = 4;
+            this.CreateRoom(Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         }
 
         CreateRoom(playerName) {
             Global.prototype.PlayerData.activeGameRoom = playerName;
-            Global.socket.emit('createRoom', { room: Global.prototype.PlayerData.activeGameRoom });
+            Global.socket.emit('createRoom', { room: Global.prototype.PlayerData.activeGameRoom, numberOfPlayers: Global.numberOfPlayers });
 
         }
 

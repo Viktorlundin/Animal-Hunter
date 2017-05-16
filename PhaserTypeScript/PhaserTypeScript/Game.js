@@ -5,28 +5,47 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var JungleHunter;
 (function (JungleHunter) {
-    var Mobs = (function (_super) {
-        __extends(Mobs, _super);
-        function Mobs(game, x, y) {
+    var Gun = (function (_super) {
+        __extends(Gun, _super);
+        function Gun(game, x, y) {
+            _super.call(this, game, x, y, 'baddie', 0);
+            this.weapon = this.game.add.weapon(30, 'bullet');
+            this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+            this.weapon.bulletSpeed = 600;
+            this.weapon.fireRate = 100;
+            //Vapnets sprite
+            this.sprite = this.sprite(400, 300, 'pistol');
+            this.sprite.anchor.set(0.5);
+            game.physics.arcade.enable(this.sprite);
+            this.weapon.trackSprite(this.sprite, -20, 0, true); //Logiska vapnet följer efter spriten
+            this.weapon.trackRotation = false;
+        }
+        return Gun;
+    }(Phaser.Sprite));
+    JungleHunter.Gun = Gun;
+})(JungleHunter || (JungleHunter = {}));
+var JungleHunter;
+(function (JungleHunter) {
+    var mob1 = (function (_super) {
+        __extends(mob1, _super);
+        function mob1(game, x, y) {
             _super.call(this, game, x, y, 'baddie', 0);
             this.x = null;
             this.y = null;
-            this.lastXPosition = null;
-            this.lastYPosition = null;
             this.x = x;
             this.y = y;
             this.animations.add('right', [2, 3], 10, true);
             this.game.physics.arcade.enable(this);
             this.body.collideWorldBounds = true;
-            this.body.velocity.x = 100;
+            this.body.drag.y = 1000;
             this.game.physics.arcade.enable(this);
             this.game.add.existing(this);
+            this.body.velocity.x = 150;
             this.animations.play('right');
         }
-        ;
-        return Mobs;
+        return mob1;
     }(Phaser.Sprite));
-    JungleHunter.Mobs = Mobs;
+    JungleHunter.mob1 = mob1;
 })(JungleHunter || (JungleHunter = {}));
 var JungleHunter;
 (function (JungleHunter) {
@@ -49,7 +68,6 @@ var JungleHunter;
             this.game.physics.arcade.enable(this);
             this.game.add.existing(this);
         }
-        ;
         return Player;
     }(Phaser.Sprite));
     JungleHunter.Player = Player;
@@ -126,28 +144,28 @@ var JungleHunter;
             this.game.state.start('MainMenu', true, false);
         };
         Host.prototype.OnePfunc = function () {
-            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             JungleHunter.Global.numberOfPlayers = 1;
+            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         };
         Host.prototype.TwoPfunc = function () {
-            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             JungleHunter.Global.numberOfPlayers = 2;
+            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         };
         Host.prototype.ThreePfunc = function () {
-            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             JungleHunter.Global.numberOfPlayers = 3;
+            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         };
         Host.prototype.FourPfunc = function () {
-            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             JungleHunter.Global.numberOfPlayers = 4;
+            this.CreateRoom(JungleHunter.Global.prototype.PlayerData.username);
             this.game.state.start('RunGame', true, false);
         };
         Host.prototype.CreateRoom = function (playerName) {
             JungleHunter.Global.prototype.PlayerData.activeGameRoom = playerName;
-            JungleHunter.Global.socket.emit('createRoom', { room: JungleHunter.Global.prototype.PlayerData.activeGameRoom });
+            JungleHunter.Global.socket.emit('createRoom', { room: JungleHunter.Global.prototype.PlayerData.activeGameRoom, numberOfPlayers: JungleHunter.Global.numberOfPlayers });
         };
         Host.prototype.LeaveRoom = function (playerName) {
             JungleHunter.Global.socket.leave(playerName);
@@ -164,10 +182,8 @@ var JungleHunter;
             _super.apply(this, arguments);
         }
         Lobby.prototype.create = function () {
-            console.log("Är i  lobby menu nu.");
             this.background = this.add.sprite(0, 0, 'Lobby');
             this.backbutton = this.game.add.button(this.game.world.centerX - 250, this.game.world.centerY, 'BackButton', this.GoBack, this);
-            //this.LobbyList = ["CDog", "VikThor", "3rik", "JoJo"];
             this.style = { font: "32px Elephant", fill: "black" };
             this.text = this.game.add.text(this.game.world.centerX - 50, this.game.world.centerY - 400, "Available games", this.style);
             this.ButtonList = new Array();
@@ -185,9 +201,10 @@ var JungleHunter;
             this.CheckLobbyList();
         };
         Lobby.prototype.startGame = function (data) {
-            var playerName = String(data.getChildAt(0).text); //den addar "" så gamerum ej hittas, utan stringy blir de body error
-            this.JoinRoom(playerName); //JSON.stringify(data.getChildAt(0).text)
-            JungleHunter.Global.numberOfPlayers = 2;
+            var playerName = String(data.getChildAt(0).text);
+            var splittedPlayerName = playerName.split(" ");
+            this.JoinRoom(splittedPlayerName[0]);
+            JungleHunter.Global.numberOfPlayers = Number(splittedPlayerName[1]);
             this.game.state.start('RunGame', true, false);
         };
         Lobby.prototype.GoBack = function () {
@@ -204,7 +221,7 @@ var JungleHunter;
         Lobby.prototype.CheckLobbyList = function () {
             for (var i = 0; i <= this.LobbyList.length - 1; i++) {
                 var joinbutton = this.game.add.button(this.game.world.centerX, 35 + (i * 75), 'EmptyButton', this.startGame, this);
-                var text = this.game.add.text(0, 0, this.LobbyList[i], { font: "14px Elephant", fill: "black", wordWrap: true, wordWrapWidth: joinbutton.width, align: "center" });
+                var text = this.game.add.text(0, 0, this.LobbyList[i] + " slots", { font: "14px Elephant", fill: "black", wordWrap: true, wordWrapWidth: joinbutton.width, align: "center" });
                 text.anchor.set(-0.20);
                 joinbutton.addChild(text);
                 this.ButtonList.push(joinbutton);
@@ -369,7 +386,7 @@ var JungleHunter;
         };
         Login.prototype.startGame = function () {
             this.state.states['MainMenu'].playername = this.inputName.value;
-            this.game.state.start('MainMenu', true, false, this.inputName);
+            this.game.state.start('MainMenu', true, false);
         };
         return Login;
     }(Phaser.State));
@@ -447,23 +464,24 @@ var JungleHunter;
             _super.apply(this, arguments);
         }
         Preloader.prototype.preload = function () {
+            this.game.stage.disableVisibilityChange = true;
             this.loaderText = this.game.add.text(this.world.centerX, 200, "Loading...", { font: "18px Arial", fill: "#A9A91111", align: "center" });
             this.loaderText.anchor.setTo(0.5);
             this.load.image('jungle', 'Jungle.png');
             this.load.image('ground', 'platform.png');
-            this.load.image('defeat', 'defeat.png');
             this.load.image('titlepage', 'JungleHunterTitlescreen.png');
             this.load.image('loginpage', 'loginbackground.png');
             this.load.image('login', 'Login.png');
+            this.load.image('defeat', 'defeat.png');
             this.load.image('register', 'Register.png');
             this.load.image('baddie', 'baddie.png');
             this.load.image('bullet', 'bullet.png');
             this.load.image('Startgame', 'Startgame.png');
             this.load.spritesheet('dude', 'dude.png', 32, 48);
             this.load.spritesheet('baddie', 'baddie.png', 32, 32);
-            this.load.spritesheet('checkbox', 'checkbox.png', 21, 27);
             this.load.image('Lobby', 'Lobby.jpg');
             this.load.image('Host', 'Host.jpg');
+            this.load.spritesheet('checkbox', 'checkbox.png', 21, 27);
             this.load.image('HostGameButton', 'hostgame.png');
             this.load.image('JoinGameButton', 'joingame.png');
             this.load.image('LogOutButton', 'logout.png');
@@ -473,6 +491,7 @@ var JungleHunter;
             this.load.image('2pButton', '2p.png');
             this.load.image('3pButton', '3p.png');
             this.load.image('4pButton', '4p.png');
+            this.load.image('pistol', 'pistol.png');
         };
         Preloader.prototype.create = function () {
             console.log("i preloader");
@@ -494,34 +513,66 @@ var JungleHunter;
             _super.apply(this, arguments);
             this.playerID = null;
             this.playerList = new Array();
-            this.mobsList = new Array();
-            this.gameover = false;
+            this.playerWeaponSprite = new Array();
+            this.playerWeaponsLists = new Array();
+            this.Bullet = function (game, key) {
+                Phaser.Sprite.call(this, game, 0, 0, key);
+                this.texture.baseTexture.scaleMode = PIXI.scaleModes.NEAREST;
+                this.physics.arcade.enable(this.Bullet);
+                this.anchor.set(0.5);
+                this.checkWorldBounds = true;
+                this.outOfBoundsKill = true;
+                this.exists = false;
+                this.tracking = false;
+                this.scaleSpeed = 0;
+            };
         }
         RunGame.prototype.create = function () {
             this.physics.startSystem(Phaser.Physics.ARCADE);
             this.background = this.add.sprite(0, 0, 'jungle');
-            //this.platforms = this.add.group();
-            //this.platforms.enableBody = true;
+            this.platforms = this.add.group();
+            this.platforms.enableBody = true;
+            for (var i = 1; i < 5; i++)
+                this.playerWeaponsLists[i] = new Array();
+            for (var i = 1; i < JungleHunter.Global.numberOfPlayers + 1; i++) {
+                var sprite = this.add.sprite(400, 300, 'pistol');
+                sprite.anchor.set(0.5);
+                this.physics.arcade.enable(sprite);
+                this.playerWeaponSprite[i] = sprite;
+            }
+            for (var i = 1; i < JungleHunter.Global.numberOfPlayers + 1; i++) {
+                var weapon = this.add.weapon(30, 'bullet');
+                weapon.trackRotation = false;
+                weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+                weapon.bulletSpeed = 2000;
+                weapon.fireRate = 700;
+                weapon.trackRotation = false;
+                weapon.fireAngle = Phaser.ANGLE_LEFT;
+                this.playerWeaponsLists[i].push(weapon);
+                this.playerWeaponsLists[i][0].trackSprite(this.playerWeaponSprite[i], -20, 0, true);
+            }
+            var cursors = this.input.keyboard.createCursorKeys();
+            this.fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR); //bara en knapp
             for (var i = 1; i <= JungleHunter.Global.numberOfPlayers; i++) {
                 this.playerList[i] = new JungleHunter.Player(this.game, 900, (100 + (i * 130)));
             }
-            for (var i = 1; i < 5; i++) {
-                this.mobsList[i] = new JungleHunter.Mobs(this.game, -900, (100 + (i * 130)));
-            }
-            this.time.events.add(Phaser.Timer.SECOND * 4, this.setGameOver, this);
             this.setEventHandlers();
-            console.log("AKTIVT SPELRUM=== " + JungleHunter.Global.prototype.PlayerData.activeGameRoom);
         };
         RunGame.prototype.update = function () {
             if (this.playerID != null) {
-                this.Movement(this.playerList[this.playerID]); //Errror här men nu fixad?
+                this.Movement(this.playerList[this.playerID]);
+                for (var i = 1; i < JungleHunter.Global.numberOfPlayers + 1; i++) {
+                    this.playerWeaponSprite[i].body.position.x = this.playerList[i].x - 500; //vapnet följer efter spelaren
+                    this.playerWeaponSprite[i].body.position.y = this.playerList[i].y - 370;
+                    this.playerWeaponSprite[i].bringToTop();
+                }
             }
-            if (this.gameover) {
-                this.game.state.start('GameOver', true, false);
+            if (this.fireButton.isDown) {
+                this.playerWeaponsLists[this.playerID][0].trackRotation = false;
+                this.playerWeaponsLists[this.playerID][0].fireAngle = Phaser.ANGLE_LEFT;
+                this.playerWeaponsLists[this.playerID][0].fire();
             }
-        };
-        RunGame.prototype.setGameOver = function () {
-            this.gameover = true;
+            this.physics.arcade.overlap(this.playerList[this.playerID], this.mobs, this.after_collision, null, this);
         };
         RunGame.prototype.Movement = function (player) {
             player.body.velocity.x = 0;
@@ -547,25 +598,26 @@ var JungleHunter;
             }
             this.BroadCastPlayerCoordinates(player);
         };
+        RunGame.prototype.after_collision = function () {
+            console.log("Killing a mob");
+            this.mobs.kill();
+        };
         RunGame.prototype.EventSetMyPlayerID = function (data) {
             this.playerID = data;
         };
+        RunGame.prototype.EventNewPlayer = function (data) {
+        };
+        RunGame.prototype.EventSpawnMob = function (data) {
+            //this.mob = new mob1(this.game, 1, data.y);
+            this.mobs = this.add.group();
+        };
         RunGame.prototype.EventUpdateCoordinates = function (data) {
-            console.log("coords from player recived n updated, cordS:" + data);
             var id, x, y;
             id = data.player;
             x = data.x;
             y = data.y;
             this.playerList[id].x = x;
             this.playerList[id].y = y;
-        };
-        RunGame.prototype.EventUpdateCoordinatesMobs = function (data) {
-            var id, x, y;
-            id = data.mobs;
-            x = data.x;
-            y = data.y;
-            this.mobsList[id].x = x;
-            this.mobsList[id].y = y;
         };
         RunGame.prototype.BroadCastPlayerCoordinates = function (player) {
             if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition))) {
@@ -579,8 +631,12 @@ var JungleHunter;
         RunGame.prototype.setEventHandlers = function () {
             var _this = this;
             JungleHunter.Global.socket.on('TotalConnections', function (data) { return _this.EventSetMyPlayerID(data); });
-            JungleHunter.Global.socket.on('updateCoordinates', function (data) { return _this.EventUpdateCoordinates(data); });
+            JungleHunter.Global.socket.on('newPlayer', function (data) { return _this.EventNewPlayer(data); });
+            JungleHunter.Global.socket.on('updateCoords', function (data) { return _this.EventUpdateCoordinates(data); });
+            JungleHunter.Global.socket.on('Mob', function (data) { return _this.EventSpawnMob(data); });
+            //Call
             JungleHunter.Global.socket.emit('HowManyTotalConnections', null);
+            JungleHunter.Global.socket.emit('StartGame', JungleHunter.Global.prototype.PlayerData.activeGameRoom);
         };
         return RunGame;
     }(Phaser.State));

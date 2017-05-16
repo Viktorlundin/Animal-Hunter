@@ -4,6 +4,7 @@
         username: string;
         email: string;
         password: string;
+
         activeGameRoom: string = null;
         level: any;
         xp: any;
@@ -14,16 +15,15 @@
         background: Phaser.Sprite;
         loginbutton: Phaser.Button;
         registerbutton: Phaser.Button;
-        checkbox: Phaser.Button;
         inputPassword: any;
         inputName: any;
         inputEmail: any;
+        checkbox: Phaser.Button;
         style: any;
         styles: any;
         Style: any;
         text: any;
         rememberText: any;
-
 
         create() {
             console.log("Är i login menu nu.");
@@ -76,11 +76,9 @@
                 type: PhaserInput.InputType.password
             });
             this.checkCookie();
-            
-
         }
 
-         public setCookie(cname, cvalue, exdays) {
+        public setCookie(cname, cvalue, exdays) {
             var d = new Date();
             d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000))
             var expires = "expires=" + d.toUTCString();
@@ -120,7 +118,6 @@
 
         EventLoginAccepted(accountData)
         {
-
             if (this.checkbox.frame == 1) {
                 this.setCookie("userEmail", this.inputEmail.value, 365);
                 this.setCookie("userName", this.inputName.value, 365);
@@ -134,10 +131,12 @@
                 PlayerData.password = accountData.password;
 
                 Global.prototype.PlayerData = PlayerData;
+
                 this.startGame();
             }
             
         }
+
 
         loginfailed() {
             this.style = { font: "64px Elephant", fill: "red" };
@@ -170,6 +169,7 @@
             Global.socket.on('RegisterFailed', () => this.Registerfailed());
         }
 
+
         setLoginEventHandlers() {
             Global.socket.on('LoginAccepted', (data) => this.EventLoginAccepted(data));
         }
@@ -185,7 +185,7 @@
 
         startGame() {
             this.state.states['MainMenu'].playername = this.inputName.value;
-            this.game.state.start('MainMenu', true, false, this.inputName);
+            this.game.state.start('MainMenu', true, false);
         }
     }
 }

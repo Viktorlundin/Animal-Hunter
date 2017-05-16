@@ -9,14 +9,13 @@ class SocketServer
     path = require('path');
     activeConnections: number = 0;
     gameRooms: any = new Array();
+    busyRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
-    alreadyloggedin: any = 0;
-    TotalConnectionList: string[];
     
 
     constructor()
     {
-        
+
     }
 
     StartWebserver(): any {
@@ -33,6 +32,7 @@ class SocketServer
         console.log("New player has connected: " + client.id);
         this.activeConnections++;
         console.log("ActiveConnections: " + this.activeConnections)
+        client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
         //Sätt lyssna funktioner för denna klient
         client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
         client.on('disconnect', () => this.EventDisconnected(client));
@@ -42,21 +42,69 @@ class SocketServer
         client.on('joinRoom', (msg) => this.EventJoinRoom(msg, client));
         client.on('createRoom', (msg) => this.EventCreateRoom(msg, client));
         client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
+        client.on('StartGame', (room) => this.EventStartGame(room));
     }
 
     EventJoinRoom(data, client)
     {
         console.log("joining room:" + data.room);
         client.join(data.room);
-        client['myRoom'] = data.room;
+        client.myRoom = data.room;
     }
 
     EventCreateRoom(data, client)
     {
         console.log("rum: " + data.room);
         client.join(data.room);
-        client['myRoom'] = data.room;
-        this.gameRooms.push(data.room);
+        client.myRoom = data.room;
+        this.gameRooms.push(data.room + ' ' + data.numberOfPlayers);
+    }
+
+    EventStartGame(room1)
+    {
+        function SpawnMob() {
+            var y = Math.floor(Math.random() * (600 - 1 + 1)) + 1;
+            var room = room1;
+            var clients_in_the_room = self.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = self.io.sockets.connected[clientId];
+                client_socket.emit('Mob', { y: y, mob: 'Mob1' });
+
+            }
+        }
+        function SpawnBOSS() {
+            var room = room1;
+            var clients_in_the_room = self.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = self.io.sockets.connected[clientId];
+                var y = Math.floor(Math.random() * (600 - 1 + 1)) + 1;
+                console.log("y:" + y);
+                client_socket.emit('Mob', { y: y, mob: 'Mob2' });
+
+            }
+        }
+        var bool = true;
+        for (var room in this.busyRooms)
+        {
+            if (room == room1)
+            {
+                bool = false;
+                break;
+            }
+            else
+            {
+                bool = true;
+            }  
+        }
+
+        if (bool) {
+            this.busyRooms.push(room1);
+            var self = this;
+            var levelDifficulty = 2;
+            setInterval(SpawnMob, levelDifficulty * 1000);
+            //setTimeout(SPAWNBOSS, 10 * 1000);
+
+        }
     }
 
     EventRemoveGame(data, client)
@@ -66,16 +114,21 @@ class SocketServer
 
     EventEmitGameRoomList(data, client)
     {
-        //this.gameRooms[0] = "hej"; this.gameRooms[1] = "bo";
         client.emit('GameRoomList', this.gameRooms);
         console.log("GameRoomList har skickats");
     }
 
     EventPlayerMoved(data, client)
     {
-        if (client['myRoom'] != null) {
-            var room = client['myRoom'];
-            this.io.in(room).emit('updateCoordinates', { x: data.x, y: data.y, player: data.player });
+        if (client.myRoom != null) {
+            var room = client.myRoom;
+
+            var clients_in_the_room = this.io.sockets.adapter.rooms[room];
+            for (var clientId in clients_in_the_room) {
+                var client_socket = this.io.sockets.connected[clientId];
+                if(client.id != client_socket.id)
+                    client_socket.emit('updateCoords', { x: data.x, y: data.y, player: data.player });
+            }
         }
     }
 
@@ -89,8 +142,7 @@ class SocketServer
 
     EventHowManyConnections(client)
     {
-        console.log('Total connections sent');
-        client.emit('TotalConnections', this.io.sockets.adapter.rooms[client['myRoom']].length);
+        client.emit('TotalConnections', Object.keys(this.io.nsps['/'].adapter.rooms[client.myRoom]).length);
     }
 
     EventCanIRegister(msg, client)
@@ -116,7 +168,7 @@ class SocketServer
                     if (doc) {
                         console.log("Cannot register");
                         client.emit('RegisterFailed', null);
-                        
+
                     }
                     else {
                         var playerDoc = {
@@ -130,14 +182,6 @@ class SocketServer
                 }
                 );
         });
-    }
-
-    CheckTotalConnections(email) {
-        for (var x = 0; this.TotalConnectionList.length < x; x++) {
-            if (this.TotalConnectionList[x] == email) {
-                this.alreadyloggedin = 1;
-            }
-        }
     }
 
     EventCanILogin(msg, client)
@@ -160,21 +204,11 @@ class SocketServer
                 },    
                 function (err, doc) {
                     if (err) { return console.dir(err); }
-
-
-                    this.CheckTotalConnections(doc.email);
-
-                    if(this.alreadyloggedin == 1){
-                        this.alreadyloggedin = 0;
-                        console.log("Failed login");
-                        client.emit('loginfailed', null);
-                    }
-                    else if (doc) {
+                    if (doc) {
                         console.log("Login success");
-                        console.log("Username found:" + doc.username);
+                        console.log("server username found:" + doc.username);
                         //Sänder logindata, kontoinfo
-                        client.id = doc.email; //Sätter clientens id till dess email
-                        this.TotalconnectionsList.push(doc.email);
+                        //client.id = doc.email; //Sätter clientens id till dess email
                         client.emit('LoginAccepted', { email: doc.email, password: doc.password, username: doc.username });
                         //Skicka data genom doc.mongodb-variabel. Hela kontot finns i doc variabeln.
                     }
@@ -186,7 +220,6 @@ class SocketServer
                 );
         });
     }
-
 
     
 

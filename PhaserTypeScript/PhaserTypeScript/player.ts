@@ -2,7 +2,7 @@
 {
     export class Player extends Phaser.Sprite
     {
-        public x: number = null;;
+        public x: number = null;
         public y: number = null;
         public lastXPosition: number = null;
         public lastYPosition: number = null;
