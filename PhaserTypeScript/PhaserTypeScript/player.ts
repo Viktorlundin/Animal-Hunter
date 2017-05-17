@@ -7,7 +7,10 @@
         public lastXPosition: number = null;
         public lastYPosition: number = null;
         public cursors = this.game.input.keyboard.createCursorKeys();
-
+        public fireButton = this.game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR); //bara en knapp
+        public playerWeaponSprite = Phaser.Sprite.prototype;
+        public playerWeaponsLists = new Array();
+        public weapon: any;
         constructor(game: Phaser.Game, x: number, y: number)
         {
             super(game, x, y, 'dude', 0);
@@ -21,6 +24,16 @@
             this.body.drag.y = 1000;
             this.game.physics.arcade.enable(this);
             this.game.add.existing(this);
+            
+            for (var i = 1; i < 5; i++) {
+
+                this.playerWeaponsLists[i] = new Array();
+            }
+
+            var sprite = this.game.add.sprite(400, 300, 'pistol');
+            sprite.anchor.set(0.5);
+            this.game.physics.arcade.enable(sprite);
+            this.playerWeaponSprite = sprite; 
         }
     }
 }

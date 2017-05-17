@@ -17,7 +17,7 @@
             this.body.drag.y = 1000;
             this.game.physics.arcade.enable(this);
             this.game.add.existing(this);
-            //this.events.onOutOfBounds.add(RunGame.prototype.GameOver, this);
+            this.events.onOutOfBounds.add(RunGame.prototype.GameOver, this);
             this.body.velocity.x = 150;
             this.animations.play('right');
         }

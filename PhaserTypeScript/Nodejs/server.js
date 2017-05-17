@@ -35,6 +35,7 @@ var SocketServer = (function () {
         client.on('createRoom', function (msg) { return _this.EventCreateRoom(msg, client); });
         client.on('EmitGameRoomList', function (msg) { return _this.EventEmitGameRoomList(msg, client); });
         client.on('StartGame', function (room) { return _this.EventStartGame(room); });
+        client.on('GameOver', function (room) { return _this.EventGameOver(room); });
     };
     SocketServer.prototype.EventJoinRoom = function (data, client) {
         console.log("joining room:" + data.room);
@@ -46,6 +47,16 @@ var SocketServer = (function () {
         client.join(data.room);
         client.myRoom = data.room;
         this.gameRooms.push(data.room + ' ' + data.numberOfPlayers);
+    };
+    SocketServer.prototype.EventGameOver = function (room1) {
+        var gameover;
+        clearInterval(this.TimeInterval);
+        var room = room1;
+        var clients_in_the_room = this.io.sockets.adapter.rooms[room];
+        for (var clientId in clients_in_the_room) {
+            var client_socket = this.io.sockets.connected[clientId];
+            client_socket.emit('GameOver', { GAMEOVER: gameover });
+        }
     };
     SocketServer.prototype.EventStartGame = function (room1) {
         function SpawnMob() {
@@ -82,7 +93,7 @@ var SocketServer = (function () {
             this.busyRooms.push(room1);
             var self = this;
             var levelDifficulty = 2;
-            setInterval(SpawnMob, levelDifficulty * 1000);
+            this.TimeInterval = setInterval(SpawnMob, levelDifficulty * 1000);
         }
     };
     SocketServer.prototype.EventEmitGameRoomList = function (data, client) {
@@ -96,7 +107,7 @@ var SocketServer = (function () {
             for (var clientId in clients_in_the_room) {
                 var client_socket = this.io.sockets.connected[clientId];
                 if (client.id != client_socket.id)
-                    client_socket.emit('updateCoords', { x: data.x, y: data.y, player: data.player });
+                    client_socket.emit('updateCoords', { gun: data.gun, x: data.x, y: data.y, player: data.player });
             }
         }
     };

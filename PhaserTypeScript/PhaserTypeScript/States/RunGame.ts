@@ -6,53 +6,36 @@
         music: Phaser.Sound;
         platforms: Phaser.Group;
         playerID: any = null;
+        mobID: any = null;
         public playerList = new Array();
         public mobslist = new Array();
-        playerWeaponSprite = new Array();
-        playerWeaponsLists = new Array();
-        fireButton;
-        weapon: any;
+        firebuttondown: boolean = false;
         i: number;
-        gameover: boolean = false;
-
+       
         create()
         {
             
             this.physics.startSystem(Phaser.Physics.ARCADE);
+            this.stage.disableVisibilityChange = true;
             this.background = this.add.sprite(0, 0, 'jungle');
             this.platforms = this.add.group();
             this.platforms.enableBody = true;
 
-            for (var i = 1; i < 5; i++)
-                this.playerWeaponsLists[i] = new Array();
 
-            for (var i = 1; i < Global.numberOfPlayers+1; i++)//Sätt så varje spelare får ett sprite objekt som är vapnet
-            {
-                var sprite = this.add.sprite(400, 300, 'pistol');
-                sprite.anchor.set(0.5);
-                this.physics.arcade.enable(sprite);
-                this.playerWeaponSprite[i] = sprite; 
-            }
-
-            for (var i = 1; i < Global.numberOfPlayers+1; i++)
-            {
-                this.weapon = this.add.weapon(30, 'bullet');
-                this.weapon.trackRotation = false;
-                this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-                this.weapon.bulletSpeed = 2000;
-                this.weapon.fireRate = 70;
-                this.weapon.trackRotation = false;
-                this.weapon.fireAngle = Phaser.ANGLE_LEFT;
-
-                this.playerWeaponsLists[i].push(this.weapon);
-                this.playerWeaponsLists[i][0].trackSprite(this.playerWeaponSprite[i], -20, 0, true);
-            }
-            var cursors = this.input.keyboard.createCursorKeys();
-
-            this.fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR); //bara en knapp
             for (var i = 1; i <= Global.numberOfPlayers; i++)   // added Global.numberOfPlayers
             {
                 this.playerList[i] = new Player(this.game, 900, (100 + (i * 130)));
+            }
+
+            for (var i = 1; i < Global.numberOfPlayers + 1; i++) {
+                this.playerList[i].weapon = this.add.weapon(30, 'bullet');
+                this.playerList[i].weapon.trackRotation = false;
+                this.playerList[i].weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+                this.playerList[i].weapon.bulletSpeed = 2000;
+                this.playerList[i].weapon.fireRate = 70;
+                this.playerList[i].weapon.fireAngle = Phaser.ANGLE_LEFT;
+                this.playerList[i].playerWeaponsLists[i].push(this.playerList[i].weapon);
+                this.playerList[i].playerWeaponsLists[i][0].trackSprite(this.playerList[i].playerWeaponSprite, -20, 0, true);  
             }
             
             this.setEventHandlers();
@@ -63,39 +46,40 @@
                 this.Movement(this.playerList[this.playerID]);
 
                 for (var i = 1; i < Global.numberOfPlayers + 1; i++) {
-                    this.playerWeaponSprite[i].body.position.x = this.playerList[i].x - 500; //vapnet följer efter spelaren
-                    this.playerWeaponSprite[i].body.position.y = this.playerList[i].y - 370;
-                    this.playerWeaponSprite[i].bringToTop();
-
-                }
-            }
-            if (this.fireButton.isDown) {
-                
-                this.playerWeaponsLists[this.playerID][0].trackRotation = false;
-                this.playerWeaponsLists[this.playerID][0].fireAngle = Phaser.ANGLE_LEFT;
-                this.playerWeaponsLists[this.playerID][0].fire();
-                
+                    this.playerList[i].playerWeaponSprite.body.position.x = this.playerList[i].x - 500; //vapnet följer efter spelaren
+                    this.playerList[i].playerWeaponSprite.body.position.y = this.playerList[i].y - 370;
+                    this.playerList[i].playerWeaponSprite.bringToTop();
+                }   
             }
 
             for (this.i = 0; this.i < this.mobslist.length; this.i++)
             {
-                if (this.physics.arcade.overlap(this.weapon.bullets, this.mobslist[this.i], null, null, this))
-                {
-                    this.mobslist[this.i].kill();
+                for (var j = 1; j < Global.numberOfPlayers + 1; j++) {
+                    if (this.physics.arcade.overlap(this.playerList[j].weapon.bullets, this.mobslist[this.i], null, null, this)) {
+                        this.mobslist[this.i].kill();
+                        delete this.mobslist[this.i];
+                    }  
                 }
-                if (this.mobslist[this.i].outOfBoundsKill) {
-                    this.GameOver();
-                }  
             }    
         }
 
-        //public GameOver(){
-        //    this.game.state.start('GameOver', true, false);
-        //}
+        GameOver() {
+            Global.socket.emit('GameOver', Global.prototype.PlayerData.activeGameRoom);
+            console.log("Skickar gameover till server");
+        }
 
         Movement(player: Player)
         {
+            this.firebuttondown = false;
             player.body.velocity.x = 0;
+
+            if (player.fireButton.isDown) {
+                player.weapon.trackRotation = false;
+                player.weapon.fireAngle = Phaser.ANGLE_LEFT;
+                player.weapon.fire();
+                this.firebuttondown = true;
+            }
+            
             if (player.cursors.left.isDown) {
                 player.body.velocity.x = -300;
                 player.animations.play('left');
@@ -138,13 +122,27 @@
 
         EventUpdateCoordinates(data)
         {
-            
-            var id, x, y;
+            var id, x, y, downornot;
+            downornot = data.gun;
             id = data.player;
             x = data.x;
             y = data.y;
+            if (downornot) {
+                console.log("A player is firing his/her weapon");
+                this.playerList[id].weapon.trackRotation = false;
+                this.playerList[id].weapon.fireAngle = Phaser.ANGLE_LEFT;
+                this.playerList[id].weapon.fire();
+            }
+            if (this.playerList[id].x == x && this.playerList[id].y == y) {
+                this.playerList[id].animations.stop();
+            }
+            else {
+                this.playerList[id].animations.play('left');
+            }
             this.playerList[id].x = x;
             this.playerList[id].y = y;
+        
+            
         }
 
         EventUpdateMobCoordinates(data) {
@@ -157,24 +155,32 @@
             
         }
 
+        EventGameOver(data) {
+        console.log("gameover");
+        this.game.state.start('GameOver', true, false);
+
+        }
+
         BroadCastMobCoordinates(mob: mob1) {
 
             if (!((mob.x == mob.lastXPosition))) {
                 var x = mob.body.position.x;
-                Global.socket.emit('mobMoved', { x: x, mob: mob.id, gameRoom: Global.prototype.PlayerData.activeGameRoom });
+                Global.socket.emit('mobMoved', { x: x, mob: this.mobID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
             }
-            mob.lastXPosition = mob.x;
-            
+            mob.lastXPosition = mob.x;           
         }
 
         BroadCastPlayerCoordinates(player: Player) {
 
-            if (!((player.x == player.lastXPosition) && (player.y == player.lastYPosition)))
+           
+            
+            
+            if ((!((player.x == player.lastXPosition) && (player.y == player.lastYPosition))) || this.firebuttondown == true)
             { 
+                var downornot = this.firebuttondown;
                 var x = player.body.position.x;
                 var y = player.body.position.y;
-                Global.socket.emit('playerMoved', { x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
-                
+                Global.socket.emit('playerMoved', {gun: downornot, x: x, y: y, player: this.playerID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
             }
             player.lastXPosition = player.x;
             player.lastYPosition = player.y;
@@ -187,6 +193,7 @@
             Global.socket.on('updateCoords', (data) => this.EventUpdateCoordinates(data));
             Global.socket.on('updateMobCoords', (data) => this.EventUpdateMobCoordinates(data));
             Global.socket.on('Mob', (data) => this.EventSpawnMob(data));
+            Global.socket.on('GameOver', (data) => this.EventGameOver(data));
             //Call
             Global.socket.emit('HowManyTotalConnections', null);
             Global.socket.emit('StartGame', Global.prototype.PlayerData.activeGameRoom);

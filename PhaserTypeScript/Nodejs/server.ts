@@ -11,7 +11,7 @@ class SocketServer
     gameRooms: any = new Array();
     busyRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
-    
+    TimeInterval: any;
 
     constructor()
     {
@@ -34,6 +34,7 @@ class SocketServer
         console.log("ActiveConnections: " + this.activeConnections)
         client.broadcast.emit('newPlayer', client.id); //id + anslutningnrr
         //Sätt lyssna funktioner för denna klient
+        
         client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
         client.on('mobMoved', (data) => this.EventMobMoved(data, client));
         client.on('disconnect', () => this.EventDisconnected(client));
@@ -44,6 +45,7 @@ class SocketServer
         client.on('createRoom', (msg) => this.EventCreateRoom(msg, client));
         client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
         client.on('StartGame', (room) => this.EventStartGame(room));
+        client.on('GameOver', (room) => this.EventGameOver(room));
     }
 
     EventJoinRoom(data, client)
@@ -59,6 +61,18 @@ class SocketServer
         client.join(data.room);
         client.myRoom = data.room;
         this.gameRooms.push(data.room + ' ' + data.numberOfPlayers);
+    }
+
+    EventGameOver(room1) {
+        var gameover;
+        clearInterval(this.TimeInterval);
+        var room = room1;
+        var clients_in_the_room = this.io.sockets.adapter.rooms[room];
+        for (var clientId in clients_in_the_room) {
+            var client_socket = this.io.sockets.connected[clientId];
+            client_socket.emit('GameOver', { GAMEOVER: gameover });
+        }
+        
     }
 
     EventStartGame(room1)
@@ -85,28 +99,28 @@ class SocketServer
 
             }
         }
-        var bool = true;
-        for (var room in this.busyRooms)
-        {
-            if (room == room1)
-            {
-                bool = false;
-                break;
+        
+            var bool = true;
+            for (var room in this.busyRooms) {
+                if (room == room1) {
+                    bool = false;
+                    break;
+                }
+                else {
+                    bool = true;
+                }
             }
-            else
-            {
-                bool = true;
-            }  
-        }
 
-        if (bool) {
-            this.busyRooms.push(room1);
-            var self = this;
-            var levelDifficulty = 2;
-            setInterval(SpawnMob, levelDifficulty * 1000);
-            //setTimeout(SPAWNBOSS, 10 * 1000);
+            if (bool) {
+                this.busyRooms.push(room1);
+                var self = this;
+                var levelDifficulty = 2;
+                this.TimeInterval = setInterval(SpawnMob, levelDifficulty * 1000);
+                //setTimeout(SPAWNBOSS, 10 * 1000);
 
-        }
+            }
+        
+       
     }
 
     EventEmitGameRoomList(data, client)
@@ -124,7 +138,7 @@ class SocketServer
             for (var clientId in clients_in_the_room) {
                 var client_socket = this.io.sockets.connected[clientId];
                 if(client.id != client_socket.id)
-                    client_socket.emit('updateCoords', { x: data.x, y: data.y, player: data.player });
+                    client_socket.emit('updateCoords', {gun: data.gun, x: data.x, y: data.y, player: data.player });
             }
         }
     }
