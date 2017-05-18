@@ -11,6 +11,7 @@
         public playerWeaponSprite = Phaser.Sprite.prototype;
         public playerWeaponsLists = new Array();
         public weapon: any;
+        public totalKills: number = 0;
         constructor(game: Phaser.Game, x: number, y: number)
         {
             super(game, x, y, 'dude', 0);

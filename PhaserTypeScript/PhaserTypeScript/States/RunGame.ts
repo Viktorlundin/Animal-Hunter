@@ -20,7 +20,7 @@
             this.background = this.add.sprite(0, 0, 'jungle');
             this.platforms = this.add.group();
             this.platforms.enableBody = true;
-
+            this.mobslist = new Array();
 
             for (var i = 1; i <= Global.numberOfPlayers; i++)   // added Global.numberOfPlayers
             {
@@ -56,6 +56,8 @@
             {
                 for (var j = 1; j < Global.numberOfPlayers + 1; j++) {
                     if (this.physics.arcade.overlap(this.playerList[j].weapon.bullets, this.mobslist[this.i], null, null, this)) {
+                        this.playerList[j].totalKills++;
+                        console.log(this.playerList[j].totalKills);
                         this.mobslist[this.i].kill();
                         delete this.mobslist[this.i];
                     }  
@@ -64,6 +66,10 @@
         }
 
         GameOver() {
+            for (var j = 1; j < Global.numberOfPlayers + 1; j++) {
+                console.log(this.playerList[j].totalKills);
+                this.state.states['GameOver'].playerscore = this.playerList[j].totalKills;
+            }  
             Global.socket.emit('GameOver', Global.prototype.PlayerData.activeGameRoom);
             console.log("Skickar gameover till server");
         }
@@ -79,7 +85,6 @@
                 player.weapon.fire();
                 this.firebuttondown = true;
             }
-            
             if (player.cursors.left.isDown) {
                 player.body.velocity.x = -300;
                 player.animations.play('left');
@@ -116,6 +121,7 @@
         EventSpawnMob(data)
         {
             var mob = new mob1(this.game, 1, data.y);
+            mob.events.onOutOfBounds.add(this.GameOver, this);
             mob.id = data.z;
             this.mobslist.push(mob);
         }
@@ -156,6 +162,9 @@
         }
 
         EventGameOver(data) {
+        Global.socket.removeAllListeners('Mob');
+        Global.socket.off('Mob');
+        delete this.mobslist;
         console.log("gameover");
         this.game.state.start('GameOver', true, false);
 
@@ -172,9 +181,6 @@
 
         BroadCastPlayerCoordinates(player: Player) {
 
-           
-            
-            
             if ((!((player.x == player.lastXPosition) && (player.y == player.lastYPosition))) || this.firebuttondown == true)
             { 
                 var downornot = this.firebuttondown;
