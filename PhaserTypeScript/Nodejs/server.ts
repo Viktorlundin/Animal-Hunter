@@ -12,6 +12,10 @@ class SocketServer
     busyRooms: any = new Array();
     MongoClient = require('mongodb').MongoClient;
     TimeInterval: any;
+    numOfClientsInRoom;
+    MYRSize;
+    room;
+    numnum = 1;
 
     constructor()
     {
@@ -36,7 +40,6 @@ class SocketServer
         //Sätt lyssna funktioner för denna klient
         
         client.on('playerMoved', (data) => this.EventPlayerMoved(data, client));
-        client.on('mobMoved', (data) => this.EventMobMoved(data, client));
         client.on('disconnect', () => this.EventDisconnected(client));
         client.on('HowManyTotalConnections', () => this.EventHowManyConnections(client));
         client.on('CanIRegister', (msg) => this.EventCanIRegister(msg, client));
@@ -46,6 +49,7 @@ class SocketServer
         client.on('EmitGameRoomList', (msg) => this.EventEmitGameRoomList(msg, client));
         client.on('StartGame', (room) => this.EventStartGame(room));
         client.on('GameOver', (room) => this.EventGameOver(room));
+        client.on('MyRoomSize', (msg) => this.EventSetRoomSize(msg, client));
     }
 
     EventJoinRoom(data, client)
@@ -53,6 +57,7 @@ class SocketServer
         console.log("joining room:" + data.room);
         client.join(data.room);
         client.myRoom = data.room;
+        this.numnum++;
     }
 
     EventCreateRoom(data, client)
@@ -61,6 +66,11 @@ class SocketServer
         client.join(data.room);
         client.myRoom = data.room;
         this.gameRooms.push(data.room + ' ' + data.numberOfPlayers);
+    }
+
+    EventSetRoomSize(data, client) {
+        console.log("room size: " + data.myroomsize);
+        this.MYRSize = data.myroomsize;
     }
 
     EventGameOver(room1) {
@@ -131,27 +141,15 @@ class SocketServer
 
     EventPlayerMoved(data, client)
     {
-        if (client.myRoom != null) {
+        if ((client.myRoom != null) && (this.numnum == this.MYRSize)) {
             var room = client.myRoom;
 
+            client.to(room).emit('RemoveWaitingForPlayersText'); //added .to(room)
             var clients_in_the_room = this.io.sockets.adapter.rooms[room];
             for (var clientId in clients_in_the_room) {
                 var client_socket = this.io.sockets.connected[clientId];
                 if(client.id != client_socket.id)
                     client_socket.emit('updateCoords', {gun: data.gun, x: data.x, y: data.y, player: data.player });
-            }
-        }
-    }
-
-    EventMobMoved(data, client) {
-        if (client.myRoom != null) {
-            var room = client.myRoom;
-
-            var clients_in_the_room = this.io.sockets.adapter.rooms[room];
-            for (var clientId in clients_in_the_room) {
-                var client_socket = this.io.sockets.connected[clientId];
-                if (client.id != client_socket.id)
-                    client_socket.emit('updateMobCoords', { x: data.x, mob: data.mob });
             }
         }
     }
@@ -251,25 +249,6 @@ class SocketServer
 
     setEventHandlers(): any {
         this.io.on("connection", (client) => this.EventConnection(client));
-            
-
-
-          
-
-
-            //client.on("move player", onMovePlayer);
-            //client.on("disconnect", onClientDisconnect);
-            //client.on("place bomb", onPlaceBomb);
-            //client.on("register map", onRegisterMap);
-            //client.on("start game on server", onStartGame);
-            //client.on("ready for round", onReadyForRound);
-            //client.on("powerup overlap", onPowerupOverlap);
-
-            //client.on("enter lobby", Lobby.onEnterLobby);
-            //client.on("host game", Lobby.onHostGame);
-            //client.on("select stage", Lobby.onStageSelect);
-            //client.on("enter pending game", Lobby.onEnterPendingGame);
-            //client.on("leave pending game", Lobby.onLeavePendingGame);
 
     }
 
@@ -279,29 +258,3 @@ class SocketServer
 let SS = new SocketServer();
 SS.setEventHandlers();
 SS.StartWebserver();
-
-
-
-//// sending to sender-client only
-//socket.emit('message', "this is a test");
-
-//// sending to all clients, include sender
-//io.emit('message', "this is a test");
-
-//// sending to all clients except sender
-//socket.broadcast.emit('message', "this is a test");
-
-//// sending to all clients in 'game' room(channel) except sender
-//socket.broadcast.to('game').emit('message', 'nice game'); <---------------------
-
-//// sending to all clients in 'game' room(channel), include sender
-//io.in('game').emit('message', 'cool game'); <----------------------------------
-
-//// sending to sender client, only if they are in 'game' room(channel)
-//socket.to('game').emit('message', 'enjoy the game');  <------------------------
-
-//// sending to all clients in namespace 'myNamespace', include sender
-//io.of('myNamespace').emit('message', 'gg');
-
-//// sending to individual socketid
-//socket.broadcast.to(socketid).emit('message', 'for your eyes only');

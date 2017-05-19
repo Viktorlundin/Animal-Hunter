@@ -11,6 +11,9 @@
         public mobslist = new Array();
         firebuttondown: boolean = false;
         i: number;
+        text: any;
+        style: any;
+        gogo: any = 0;
        
         create()
         {
@@ -39,6 +42,11 @@
             }
             
             this.setEventHandlers();
+
+            if (Global.numberOfPlayers > 1) {
+                this.WaitingForPlayersText();
+            }
+
         }
 
         update() {
@@ -108,11 +116,6 @@
             this.BroadCastPlayerCoordinates(player);
         }
 
-        MovementMob(mob: mob1)
-        {
-            this.BroadCastMobCoordinates(mob);
-        }
-
         EventSetMyPlayerID(data)
         {
             this.playerID = data;
@@ -151,16 +154,6 @@
             
         }
 
-        EventUpdateMobCoordinates(data) {
-
-            var id, x;
-            id = data.mob;
-            x = data.x;
-  
-            this.mobslist[id].x = x;
-            
-        }
-
         EventGameOver(data) {
         Global.socket.removeAllListeners('Mob');
         Global.socket.off('Mob');
@@ -168,15 +161,6 @@
         console.log("gameover");
         this.game.state.start('GameOver', true, false);
 
-        }
-
-        BroadCastMobCoordinates(mob: mob1) {
-
-            if (!((mob.x == mob.lastXPosition))) {
-                var x = mob.body.position.x;
-                Global.socket.emit('mobMoved', { x: x, mob: this.mobID, gameRoom: Global.prototype.PlayerData.activeGameRoom });
-            }
-            mob.lastXPosition = mob.x;           
         }
 
         BroadCastPlayerCoordinates(player: Player) {
@@ -192,17 +176,35 @@
             player.lastYPosition = player.y;
         }
 
+      
+        WaitingForPlayersText() {
+            this.style = { font: "64px Elephant", fill: "red" };
+            this.text = this.game.add.text(this.game.world.centerX, this.game.world.centerY - 200, "Waiting For Players", this.style);
+            
+        }
+
+    
+        RemoveWaitingForPlayersText() {        
+            if (+this.gogo == 0) {
+                Global.socket.emit('StartGame', Global.prototype.PlayerData.activeGameRoom);
+                this.gogo = 1;
+            }
+            this.style = { font: "64px Elephant", fill: "red" };
+            this.text.destroy();
+            
+        }
+
         setEventHandlers()
         {
             
             Global.socket.on('TotalConnections', (data) => this.EventSetMyPlayerID(data));       
             Global.socket.on('updateCoords', (data) => this.EventUpdateCoordinates(data));
-            Global.socket.on('updateMobCoords', (data) => this.EventUpdateMobCoordinates(data));
             Global.socket.on('Mob', (data) => this.EventSpawnMob(data));
             Global.socket.on('GameOver', (data) => this.EventGameOver(data));
+            Global.socket.on('RemoveWaitingForPlayersText', () => this.RemoveWaitingForPlayersText());
             //Call
             Global.socket.emit('HowManyTotalConnections', null);
-            Global.socket.emit('StartGame', Global.prototype.PlayerData.activeGameRoom);
+            
         }
 
     }
